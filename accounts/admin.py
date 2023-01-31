@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 # For language translations
 from django.utils.translation import gettext_lazy as _
+from .models import UserProfile
 
 User = get_user_model()
 
@@ -53,4 +54,21 @@ class UserAdmin(BaseUserAdmin):
     readonly_fields = ("last_login", "created_on", "updated_on")
 
 
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        "user_email",
+        "user_first_name",
+        "user_last_name",
+        "country",
+        "state",
+        "city",
+        "active",
+    )
+    list_filter = ("country", "city", "state")
+    list_editable = [
+        "active",
+    ]
+
+
 admin.site.register(User, UserAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)

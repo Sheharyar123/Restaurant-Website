@@ -57,3 +57,38 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    profile_pic = models.ImageField(
+        upload_to="users/profile_pics", null=True, blank=True
+    )
+    cover_photo = models.ImageField(
+        upload_to="users/cover_photos", null=True, blank=True
+    )
+    address = models.CharField(max_length=255, null=True, blank=True)
+    country = models.CharField(max_length=100, null=True, blank=True)
+    state = models.CharField(max_length=100, null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    pin_code = models.CharField(max_length=50, null=True, blank=True)
+    latitude = models.CharField(max_length=20, blank=True, null=True)
+    longitude = models.CharField(max_length=20, blank=True, null=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    modified_on = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-modified_on", "-created_on"]
+
+    def __str__(self):
+        return f"{self.user.first_name} {self.user.last_name}'s profile"
+
+    def user_email(self):
+        return self.user.email
+
+    def user_first_name(self):
+        return self.user.first_name
+
+    def user_last_name(self):
+        return self.user.last_name
