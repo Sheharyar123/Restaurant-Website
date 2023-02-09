@@ -34,9 +34,12 @@ class BaseUserManager(UserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    RESTAURANT = 1
+    CUSTOMER = 2
+
     ROLE_CHOICE = (
-        (1, "Restaurant"),
-        (2, "Customer"),
+        (RESTAURANT, "Restaurant"),
+        (CUSTOMER, "Customer"),
     )
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
