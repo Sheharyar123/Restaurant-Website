@@ -1,11 +1,14 @@
 from django.contrib import messages, auth
 from django.contrib.auth import get_user_model
-from django.shortcuts import render, redirect
-from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import render, redirect
+from django.utils.http import urlsafe_base64_decode
+from django.views.generic import View
 
 from .forms import UserRegisterationForm, RestaurantForm
 from .models import UserProfile
+from .utils import send_verification_email
 
 User = get_user_model()
 # Create your views here.
@@ -41,6 +44,9 @@ class RegisterUserView(View):
             )
             user.role = User.CUSTOMER
             user.save()
+            mail_subject = "Please activate your account"
+            email_template = "accounts/emails/account_email_verification.html"
+            send_verification_email(request, user, mail_subject, email_template)
             messages.success(request, "Your account has been registered successfully!")
             return redirect("core:index")
 
@@ -74,6 +80,10 @@ class RegisterRestaurantView(View):
             )
             user.role = User.RESTAURANT
             user.save()
+            # Send verification Mail
+            mail_subject = "Please activate your account"
+            email_template = "accounts/emails/account_verification_email.html"
+            send_verification_email(request, user, mail_subject, email_template)
             user_profile = UserProfile.objects.get(user=user)
             restaurant = restaurant_form.save(commit=False)
             restaurant.user = user
@@ -88,6 +98,26 @@ class RegisterRestaurantView(View):
         else:
             context = {"form": form, "restaurant_form": restaurant_form}
             return render(request, "accounts/register_restaurant.html", context)
+
+
+class ActivateView(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            uid = urlsafe_base64_decode(kwargs.get("uidb64")).decode()
+            user = User._default_manager.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user and default_token_generator.check_token(
+            user, token=kwargs.get("token")
+        ):
+            user.is_active = True
+            user.save()
+            messages.success(request, "Congratulation! Your account is activated.")
+            return redirect("accounts:dashboard")
+        else:
+            messages.error(request, "Invalid activation link. Please try again")
+            return redirect("accounts:dashboard")
 
 
 class LoginView(View):
