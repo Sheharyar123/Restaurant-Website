@@ -1,18 +1,23 @@
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, redirect
 from django.views.generic import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import UserRegisterationForm, RestaurantForm
 from .models import UserProfile
 
 User = get_user_model()
 # Create your views here.
-class RegisterUser(View):
+class RegisterUserView(View):
     def get(self, request, *args, **kwargs):
-        form = UserRegisterationForm()
-        context = {"form": form}
-        return render(request, "accounts/registerUser.html", context)
+        if request.user.is_authenticated:
+            messages.warning(request, "You are already logged in!")
+            return redirect("accounts:dashboard")
+        else:
+            form = UserRegisterationForm()
+            context = {"form": form}
+            return render(request, "accounts/register_user.html", context)
 
     def post(self, request, *args, **kwargs):
         form = UserRegisterationForm(request.POST)
@@ -44,7 +49,7 @@ class RegisterUser(View):
             return render(request, "accounts/register_user.html", context)
 
 
-class RegisterRestaurant(View):
+class RegisterRestaurantView(View):
     def get(self, request, *args, **kwargs):
         form = UserRegisterationForm
         restaurant_form = RestaurantForm
@@ -83,3 +88,42 @@ class RegisterRestaurant(View):
         else:
             context = {"form": form, "restaurant_form": restaurant_form}
             return render(request, "accounts/register_restaurant.html", context)
+
+
+class LoginView(View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            messages.warning(request, "You are already logged in!")
+            return redirect("accounts:customer_dashboard")
+        else:
+            return render(request, "accounts/login.html")
+
+    def post(self, request, *args, **kwargs):
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        user = auth.authenticate(email=email, password=password)
+        if user is not None:
+            auth.login(request, user=user)
+            messages.success(request, "You have logged into your account successfully!")
+            return redirect("accounts:dashboard")
+        else:
+            messages.error(request, "Invalid login credentials!")
+            return redirect("accounts:login")
+
+
+class LogoutView(View):
+    def get(self, request, *args, **kwargs):
+        auth.logout(request)
+        messages.info(request, "You are logged out.")
+        return redirect("accounts:login")
+
+
+class DashboardView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        if user.role == User.CUSTOMER:
+            return render(request, "accounts/customer_dashboard.html")
+        elif user.role == User.RESTAURANT:
+            return render(request, "accounts/restaurant_dashboard.html")
+        elif user.role is None and user.is_superuser:
+            return redirect("/admin/")

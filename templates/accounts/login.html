@@ -1,5 +1,4 @@
 {% extends '_base.html' %} 
-
 {% block title %}FoodOnline | User Registeration{% endblock title %} 
 
 {% block content %}
@@ -17,14 +16,11 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="user-dashboard loader-holder">
+            <div class="user-dashboard loader-holder" style="min-height: auto;">
               <div class="user-holder">
-                <h4 class="text-center" style="margin-bottom: 0">
-                  WELCOME TO FOODONLINE
-                </h4>
+                <h4 class="text-center" style="margin-bottom: 0">SIGN IN</h4>
                 <p class="text-center">
-                  Please fill this form to get yourself onboarded in the
-                  foodOnline marketplace.
+                  Order food from your favorite restaurants
                 </p>
                 <hr />
                 <div id="restaurant-sets-holder">
@@ -41,32 +37,46 @@
                         <div class="row">
                           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                             <div class="row">
-                              {% for field in form %}
-                              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                 <div class="field-holder">
-                                  <label>{{ field.label }}</label>
-                                  {{ field }}
+                                  <label>Email</label>
+                                  <input
+                                    type="email"
+                                    name="email"
+                                    placeholder="Enter your email..."
+                                  />
                                 </div>
                               </div>
-                              {% endfor %}
+                              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <div class="field-holder">
+                                  <label>Password</label>
+                                  <input
+                                    type="password"
+                                    name="password"
+                                    placeholder="Enter your password..."
+                                  />
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </li>
                       <li>
-                        {% if form.errors %}
-                          {% for field in form %}
-                              {% for error in field.errors %}
-                                <div class="text-center">
-                                    <strong class="form-error" style="color: red;">{{ error|escape }}</strong>
-                                </div>
-                              {% endfor %}
-                          {% endfor %}
+                        {% if form.errors %} 
+                          {% for field in form %} 
+                            {% for error in field.errors %}
+                              <div class="text-center">
+                                <strong class="form-error" style="color: red"
+                                  >{{ error|escape }}</strong
+                                >
+                              </div>
+                            {% endfor %} 
+                          {% endfor %} 
                           {% for error in form.non_field_errors %}
                             <div class="text-center">
-                                <strong class="form-error">{{ error|escape }}</strong>
+                              <strong class="form-error">{{ error|escape }}</strong>
                             </div>
-                          {% endfor %}
+                          {% endfor %} 
                         {% endif %}
                         <div class="row">
                           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -82,6 +92,12 @@
                             </div>
                           </div>
                         </div>
+                        <div class="row">
+                          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                              <!-- Load message -->
+                              {% include '_alerts.html' %}
+                          </div>
+                        </div>
                       </li>
                     </ul>
                   </form>
@@ -94,12 +110,4 @@
     </div>
   </div>
 
-  <script>
-    setTimeout(() => {
-      let errors = document.getElementsByClass('form-error');
-      for (const error in errors) {
-        error.style.display = 'none';
-      }
-    }, 5000);
-  </script>
 {% endblock content %}

@@ -1,0 +1,10 @@
+{% extends '_base.html' %}
+
+{% block title %}Welcome {{ request.user.vendor.restaurant_name }}{% endblock title %}
+
+
+{% block content %}
+
+    <h4>Welcome {{ request.user.vendor.restaurant_name }}</h4>
+
+{% endblock content %}
