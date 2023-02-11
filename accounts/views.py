@@ -8,7 +8,7 @@ from django.views.generic import View
 
 from .forms import UserRegisterationForm, RestaurantForm
 from .models import UserProfile
-from .utils import send_verification_email
+from .utils import send_verification_email, send_reset_password_email
 
 User = get_user_model()
 # Create your views here.
@@ -47,7 +47,9 @@ class RegisterUserView(View):
             mail_subject = "Please activate your account"
             email_template = "accounts/emails/account_email_verification.html"
             send_verification_email(request, user, mail_subject, email_template)
-            messages.success(request, "Your account has been registered successfully!")
+            messages.success(
+                request, "We have sent you an email to verify your account!"
+            )
             return redirect("core:index")
 
         else:
@@ -113,7 +115,7 @@ class ActivateView(View):
         ):
             user.is_active = True
             user.save()
-            messages.success(request, "Congratulation! Your account is activated.")
+            messages.success(request, "Congratulations! Your account is activated.")
             return redirect("accounts:dashboard")
         else:
             messages.error(request, "Invalid activation link. Please try again")
@@ -124,7 +126,7 @@ class LoginView(View):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             messages.warning(request, "You are already logged in!")
-            return redirect("accounts:customer_dashboard")
+            return redirect("accounts:dashboard")
         else:
             return render(request, "accounts/login.html")
 
@@ -146,6 +148,67 @@ class LogoutView(View):
         auth.logout(request)
         messages.info(request, "You are logged out.")
         return redirect("accounts:login")
+
+
+class ForgotPasswordView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, "accounts/forgot_password.html")
+
+    def post(self, request, *args, **kwargs):
+        email = request.POST.get("email")
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email__exact=email)
+            # Send reset password email
+            mail_subject = "Please Reset your password"
+            email_template = "accounts/emails/password_reset_email.html"
+            send_reset_password_email(request, user, mail_subject, email_template)
+            messages.success(
+                request, "Password reset link has been sent to your email address."
+            )
+            return redirect("accounts:login")
+        else:
+            messages.error(request, "Account does not exist!")
+            return redirect("accounts:forgot_password")
+
+
+class ResetPasswordValidateView(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            uid = urlsafe_base64_decode(kwargs.get("uidb64")).decode()
+            user = User._default_manager.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user and default_token_generator.check_token(
+            user, token=kwargs.get("token")
+        ):
+            request.session["uid"] = uid
+            messages.info(request, "Please reset your password")
+            return redirect("accounts:reset_password")
+        else:
+            messages.error(request, "Reset Password Link expired! Please try again")
+            return redirect("accounts:forgot_password")
+
+
+class ResetPasswordView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, "accounts/reset_password.html")
+
+    def post(self, request, *args, **kwargs):
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+        # user = User.objects.get(pk=request.session["uid"])
+        if password == confirm_password:
+            pk = request.session.get("uid")
+            user = User.objects.get(pk=pk)
+            user.set_password(password)
+            user.is_active = True
+            user.save()
+            messages.success(request, "Password reset successful")
+            return redirect("accounts:login")
+        else:
+            messages.error(request, "Passwords don't match! Please try again!")
+            return redirect("accounts:reset_password")
 
 
 class DashboardView(LoginRequiredMixin, View):

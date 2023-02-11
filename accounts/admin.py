@@ -19,6 +19,7 @@ class UserAdmin(BaseUserAdmin):
         "role",
         "phone_no",
         "created_on",
+        "is_active",
         "is_staff",
     )
     fieldsets = (
