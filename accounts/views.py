@@ -6,8 +6,8 @@ from django.shortcuts import render, redirect
 from django.utils.http import urlsafe_base64_decode
 from django.views.generic import View
 
-from core.models import Restaurant
-from .forms import UserRegisterationForm, RestaurantForm
+from core.forms import RestaurantForm
+from .forms import UserRegisterationForm
 from .models import UserProfile
 from .utils import send_verification_email, send_reset_password_email
 
