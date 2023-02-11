@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.utils.http import urlsafe_base64_decode
 from django.views.generic import View
 
+from core.models import Restaurant
 from .forms import UserRegisterationForm, RestaurantForm
 from .models import UserProfile
 from .utils import send_verification_email, send_reset_password_email
@@ -217,6 +218,8 @@ class DashboardView(LoginRequiredMixin, View):
         if user.role == User.CUSTOMER:
             return render(request, "accounts/customer_dashboard.html")
         elif user.role == User.RESTAURANT:
+            # restaurant = Restaurant.objects.get(user=request.user)
+            # context = {"restaurant": restaurant}
             return render(request, "accounts/restaurant_dashboard.html")
         elif user.role is None and user.is_superuser:
             return redirect("/admin/")

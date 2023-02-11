@@ -1,7 +1,7 @@
-from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import models
-
+from django.template.defaultfilters import slugify
+from django.urls import reverse
 from accounts.models import UserProfile
 from accounts.utils import send_approval_notification
 
@@ -15,7 +15,8 @@ class Restaurant(models.Model):
     user_profile = models.OneToOneField(
         UserProfile, on_delete=models.CASCADE, related_name="vendor"
     )
-    restaurant_name = models.CharField(max_length=100)
+    restaurant_name = models.CharField(max_length=100, unique=True)
+    restaurant_slug = models.SlugField(unique=True, max_length=100)
     restaurant_license = models.FileField(upload_to="restaurant/licenses")
     is_approved = models.BooleanField(default=False)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -25,6 +26,7 @@ class Restaurant(models.Model):
         ordering = ["-modified_on", "-created_on"]
 
     def save(self, *args, **kwargs):
+        self.restaurant_slug = self.restaurant_slug or slugify(self.restaurant_name)
         if self.pk is not None:
             restaurant = Restaurant.objects.get(pk=self.pk)
             if restaurant.is_approved != self.is_approved:
@@ -34,7 +36,7 @@ class Restaurant(models.Model):
                     "is_approved": self.is_approved,
                     "to_email": self.user.email,
                 }
-                if self.approved == True:
+                if self.is_approved == True:
                     # Send approval notification email
                     mail_subject = "Congratulations! Your restaurant has been approved."
                     send_approval_notification(mail_subject, mail_template, context)
@@ -47,3 +49,8 @@ class Restaurant(models.Model):
 
     def __str__(self):
         return self.restaurant_name
+
+    def get_absolute_url(self):
+        return reverse(
+            "core:my_restaurant", kwargs={"restaurant_slug": self.restaurant_slug}
+        )

@@ -96,3 +96,15 @@ class UserProfile(models.Model):
 
     def user_last_name(self):
         return self.user.last_name
+
+    @property
+    def coverImageUrl(self):
+        if not self.cover_photo:
+            return ""
+        return self.cover_photo.url
+
+    @property
+    def profileImageUrl(self):
+        if not self.profile_pic:
+            return ""
+        return self.profile_pic.url

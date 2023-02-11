@@ -549,7 +549,7 @@
 .user-dashboard .element-title { margin-bottom: 30px; }
 .user-dashboard .user-holder { position: relative; }
 .user-dashboard .element-title:after { clear: both; display: block; content: ""; }
-.user-dashboard .element-title h5 { display: inline-block; text-transform: uppercase !important; margin: 0; line-height: 32px !important; }
+.user-dashboard .element-title h5 { display: inline-block; text-transform: uppercase !important; margin: 10px 0 0 0; line-height: 32px !important; }
 .user-dashboard .add-btn { float: right; margin-bottom: 30px; }
 .user-dashboard .add-btn a { display: inline-block; outline: none; text-decoration: none; line-height: normal; border: 1px solid; border-radius: 5px; padding: 5px 18px; font-size: 12px; }
 .user-dashboard .order-list { margin-bottom: 30px; }
