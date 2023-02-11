@@ -84,7 +84,7 @@ class RegisterRestaurantView(View):
             user.save()
             # Send verification Mail
             mail_subject = "Please activate your account"
-            email_template = "accounts/emails/account_verification_email.html"
+            email_template = "accounts/emails/account_email_verification.html"
             send_verification_email(request, user, mail_subject, email_template)
             user_profile = UserProfile.objects.get(user=user)
             restaurant = restaurant_form.save(commit=False)

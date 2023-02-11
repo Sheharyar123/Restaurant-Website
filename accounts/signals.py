@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 from .models import UserProfile
@@ -16,3 +16,9 @@ def create_profile(sender, instance, created, **kwargs):
             profile.save()
         except:
             UserProfile.objects.create(user=instance)
+
+
+@receiver(post_delete, sender=UserProfile)
+def delete_user(sender, instance, **kwargs):
+    user = instance.user
+    user.delete()
