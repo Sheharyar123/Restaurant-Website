@@ -6,13 +6,13 @@
                     <i class="icon-dashboard3"></i>Dashboard
                 </a>
             </li>
-            <li class={% if 'restaurant' in request.path and 'profile' not in request.path %}"active"{% endif %}>
+            <li class={% if 'restaurant' in request.path and 'profile' not in request.path and 'menu' not in request.path  %}"active"{% endif %}>
                 <a href="{{ restaurant.get_absolute_url }}">
                     <i class="icon-building"></i>My Restaurant
                 </a>
             </li>
-            <li>
-                <a href="restaurant-menu-builder.html">
+            <li class={% if 'menu' in request.path %}"active"{% endif %}>
+                <a href="{% url 'menu:category_list' %}">
                     <i class="icon-menu5"></i>Menu Builder
                 </a>
             </li>
