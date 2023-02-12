@@ -13,7 +13,7 @@ class HomePageView(TemplateView):
     template_name = "core/index.html"
 
 
-class RestaurantProfileView(View):
+class RestaurantProfileView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         user_profile = UserProfile.objects.get(user=request.user)
         restaurant = Restaurant.objects.get(user_profile=user_profile)
@@ -39,7 +39,13 @@ class RestaurantProfileView(View):
             return redirect("core:restaurant_profile")
         else:
             messages.error(request, "There was a problem updating")
-            return redirect("core:restaurant_profile")
+            context = {
+                "form": form,
+                "r_form": r_form,
+                "user_profile": user_profile,
+                "restaurant": restaurant,
+            }
+            return render(request, "core/restaurant_profile.html", context)
 
 
 class RestaurantDetailView(LoginRequiredMixin, DetailView):

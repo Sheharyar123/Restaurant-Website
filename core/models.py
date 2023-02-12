@@ -17,7 +17,7 @@ class Restaurant(models.Model):
     )
     restaurant_name = models.CharField(max_length=100, unique=True)
     restaurant_slug = models.SlugField(unique=True, max_length=100)
-    restaurant_license = models.FileField(upload_to="restaurant/licenses")
+    restaurant_license = models.ImageField(upload_to="restaurant/licenses")
     is_approved = models.BooleanField(default=False)
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
