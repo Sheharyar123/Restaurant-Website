@@ -1,6 +1,6 @@
 {% extends '_base.html' %}
 {% load static %}
-{% block title %}{{ restaurant.restaurant_name|title }} | Edit Category{% endblock title %}
+{% block title %}{{ restaurant.restaurant_name|title }} | Add Food {% endblock title %}
 
 {% block content %}
 
@@ -16,9 +16,12 @@
                     <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
                         <div class="user-dashboard loader-holder">
                             <div class="user-holder">
-                                <h2 class="text-uppercase">Edit Category</h2>
+                                <h5 class="text-uppercase">Build Your Food Menu</h5>
                                 <hr>
-                                <form action="{% url 'menu:edit_category' category.slug %}" method="POST">
+                                <button class="btn btn-secondary" onclick="history.back()"><i class="fa fa-angle-left" aria-hidden="true"></i> Back</button>
+                                <br><br>
+                                <h6>Add New Food Item</h6>
+                                <form action="{% url 'menu:add_food_item' %}" method="POST" enctype="multipart/form-data">
                                     {% csrf_token %}
                                     <div class="form-fields-set">
                                         <ul>
@@ -26,14 +29,38 @@
                                                 <div class="row">
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="field-holder">
-                                                            <label>{{ form.category_title.label }}</label>
-                                                            {{ form.category_title }}
+                                                            <label>{{ form.category.label }}</label>
+                                                            {{ form.category }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="field-holder">
+                                                            <label>Title</label>
+                                                            {{ form.food_title }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="field-holder">
+                                                            <label>{{ form.price.label }}</label>
+                                                            {{ form.price }}
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                         <div class="field-holder">
                                                             <label>{{ form.description.label }}</label>
                                                             {{ form.description }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="field-holder">
+                                                            <label>{{ form.image.label }}</label>
+                                                            {{ form.image }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                        <div class="field-holder">
+                                                            <label>Is Available</label>
+                                                            {{ form.is_available }}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -55,7 +82,7 @@
                                         {% endif %}
                                         <div>
                                             <div class="field-holder">
-                                                <input type="submit" value="Edit" class="btn btn-secondary btn-lg btn-block">    
+                                                <input type="submit" value="Add" class="btn btn-secondary btn-lg btn-block">    
                                             </div>
                                         </div>
                                     </div>

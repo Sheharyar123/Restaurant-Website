@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, DetailView
-from .forms import CategoryForm
-from .models import Category
+from .forms import CategoryForm, FoodItemForm
+from .models import Category, FoodItem
 from .utils import get_restaurant
 
 
@@ -75,3 +75,50 @@ class DeleteCategoryView(LoginRequiredMixin, View):
         category.delete()
         messages.success(request, "Category was deleted successfully!")
         return redirect("menu:menu_builder")
+
+
+class AddFoodItemView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        form = FoodItemForm
+        context = {"form": form}
+        return render(request, "menu/add_food_item.html", context)
+
+    def post(self, request, *args, **kwargs):
+        form = FoodItemForm(request.POST, request.FILES)
+        if form.is_valid():
+            food_item = form.save(commit=False)
+            food_item.restaurant = get_restaurant(request)
+            food_item.save()
+            messages.success(request, "Food Item was added successfully!")
+            return redirect(food_item.category.get_absolute_url())
+        else:
+            context = {"form": form}
+            return render(request, "menu/add_food_item.html", context)
+
+
+class EditFoodItemView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        food_item = FoodItem.objects.get(slug=kwargs.get("food_item_slug"))
+        form = FoodItemForm(instance=food_item)
+        context = {"form": form, "food_item": food_item}
+        return render(request, "menu/edit_food_item.html", context)
+
+    def post(self, request, *args, **kwargs):
+        food_item = FoodItem.objects.get(slug=kwargs.get("food_item_slug"))
+        form = FoodItemForm(request.POST, instance=food_item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Food Item was updated successfully!")
+            return redirect(food_item.category.get_absolute_url())
+        else:
+            context = {"form": form}
+            return render(request, "menu/edit_food_item.html", context)
+
+
+class DeleteFoodItemView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        food_item = FoodItem.objects.get(slug=kwargs.get("food_item_slug"))
+        category = food_item.category
+        food_item.delete()
+        messages.success(request, "Food Item was deleted successfully!")
+        return redirect(category.get_absolute_url())

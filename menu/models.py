@@ -1,5 +1,6 @@
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.urls import reverse
 from core.models import Restaurant
 
 
@@ -24,6 +25,9 @@ class Category(models.Model):
 
     def clean(self):
         self.category_title = self.category_title.capitalize()
+
+    def get_absolute_url(self):
+        return reverse("menu:category_detail", args=[self.slug])
 
     def __str__(self):
         return self.category_title

@@ -1,6 +1,7 @@
 {% extends '_base.html' %}
-
 {% load static %}
+
+{% block title %}{{ restaurant.restaurant_name }} | Category {{ category }}{% endblock title %}
 
 {% block content %}
 
@@ -20,10 +21,12 @@
                                 <h5 class="text-uppercase">Build Your Food Menu</h5>
                                 <hr>
                                 <button class="btn btn-secondary" onclick="history.back()"><i class="fa fa-angle-left" aria-hidden="true"></i> Back</button>
+                                {% if category.food_items.count > 0 %}
+                                <a href="{% url 'menu:add_food_item' %}" class="btn btn-success float-right m-1" style="font-size: 0.8rem;"><i class="fa fa-plus" aria-hidden="true"></i> Add Food</a>
+                                {% endif %}
                                 <br><br>
                                 <h6>Category: <span class="text-uppercase text-success">{{ category }}</span></h6>
                                 
-
                                 {% if category.food_items.all %}
                                 <table class="table table-hover table-borderless">
                                     
@@ -43,7 +46,7 @@
                                                 <span class="badge badge-danger">Not Available</span>
                                             {% endif %}
                                         </td>
-                                        <td><a href="#" style="color: unset;"><i class="fa fa-pencil" aria-hidden="true"></i></a> &nbsp; <a href="#" onclick="return confirm('Are you sure you want to delete this food?')"><i class="fa fa-trash text-danger" aria-hidden="true"></i></a></td>
+                                        <td><a href="{% url 'menu:edit_food_item' food.slug %}" style="color: unset;"><i class="fa fa-pencil" aria-hidden="true"></i></a> &nbsp; <a href="{% url 'menu:delete_food_item' food.slug %}" onclick="return confirm('Are you sure you want to delete this food?')"><i class="fa fa-trash text-danger" aria-hidden="true"></i></a></td>
                                     </tr>
                                     {% endfor %}
                                     </tbody>
@@ -51,7 +54,7 @@
                                 {% else %}
                                 <h5 class="text-center">No food items found.</h5>
                                 <div class="text-center">
-                                    <a href="#" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> &nbsp; Add Food</a>
+                                    <a href="{% url 'menu:add_food_item' %}" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> &nbsp; Add Food</a>
                                 </div>
                                 {% endif %}
                             </div>
