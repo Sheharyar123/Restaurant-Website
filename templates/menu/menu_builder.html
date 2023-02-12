@@ -20,24 +20,24 @@
                                 <hr>
                                 <h6>Menu Categories</h6>
                                 {% if category_list %}
-                                    <a href="#" class="btn btn-success float-right m-1" style="font-size: 0.9rem;"><i class="fa fa-plus" aria-hidden="true"></i> Add Food</a>
-                                    <a href="#" class="btn btn-info float-right m-1" style="font-size: 0.9rem;"><i class="fa fa-plus" aria-hidden="true"></i> Add Category</a>
-                                    <table class="table table-hover table-borderless m-10">
+                                    <a href="#" class="btn btn-success float-right m-1" style="font-size: 0.8rem;"><i class="fa fa-plus" aria-hidden="true"></i> Add Food</a>
+                                    <a href="{% url 'menu:add_category' %}" class="btn btn-info float-right m-1" style="font-size: 0.8rem;"><i class="fa fa-plus" aria-hidden="true"></i> Add Category</a>
+                                    <table class="table table-hover table-borderless">
                                         <tbody>
                                         {% for category in category_list %}
                                         <tr>
                                             <th class="text-left">{{ forloop.counter }}</th>
                                             <td class="text-left">
-                                                <a href="#"><p class="mb-0 font-weight-bold">{{ category }}</p></a>
+                                                <a href="{% url 'menu:category_detail' category.slug %}"><p class="mb-0 font-weight-bold">{{ category }}</p></a>
                                             </td>
-                                            <td><a href="#" style="color:unset;"><i class="fa fa-pencil" aria-hidden="true"></i></a> &nbsp; <a href="#" onclick="return confirm('Are you sure you want to delete this category?')"><i class="fa fa-trash text-danger" aria-hidden="true"></i></a></td>
+                                            <td><a href="{% url 'menu:edit_category' category.slug %}" style="color:unset;"><i class="fa fa-pencil" aria-hidden="true"></i></a> &nbsp; <a href="{% url 'menu:delete_category' category.slug %}" onclick="return confirm('Are you sure you want to delete this category?')"><i class="fa fa-trash text-danger" aria-hidden="true"></i></a></td>
                                         </tr>
                                         {% endfor %}
                                         </tbody>
                                     </table>
                                 {% else %}
                                     <h5 class="text-center">No categories found.</h5>
-                                    <div class="text-center"><a href="#" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Add Category</a></div>
+                                    <div class="text-center"><a href="{% url 'menu:add_category' %}" class="btn btn-success"><i class="fa fa-plus" aria-hidden="true"></i> Add Category</a></div>
                                 {% endif %}
                             </div>
                         </div>

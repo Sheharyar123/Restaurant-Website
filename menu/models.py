@@ -22,6 +22,9 @@ class Category(models.Model):
         self.slug = self.slug or slugify(self.category_title)
         return super(Category, self).save(*args, **kwargs)
 
+    def clean(self):
+        self.category_title = self.category_title.capitalize()
+
     def __str__(self):
         return self.category_title
 
