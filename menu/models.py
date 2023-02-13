@@ -20,7 +20,9 @@ class Category(models.Model):
         verbose_name_plural = "categories"
 
     def save(self, *args, **kwargs):
-        self.slug = self.slug or slugify(self.category_title)
+        self.slug = (
+            self.slug or f"{slugify(self.category_title)}-{self.restaurant.user.id}"
+        )
         return super(Category, self).save(*args, **kwargs)
 
     def clean(self):
@@ -40,7 +42,7 @@ class FoodItem(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="food_items"
     )
-    food_title = models.CharField(max_length=100, unique=True)
+    food_title = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -53,7 +55,7 @@ class FoodItem(models.Model):
         ordering = ["-modified_on", "-added_on"]
 
     def save(self, *args, **kwargs):
-        self.slug = self.slug or slugify(self.food_title)
+        self.slug = self.slug or f"{slugify(self.food_title)}-{self.restaurant.user.id}"
         return super(FoodItem, self).save(*args, **kwargs)
 
     def __str__(self):

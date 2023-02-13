@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.views.generic import View, TemplateView, DetailView
+from django.views.generic import View, ListView, DetailView
 
 from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
@@ -9,8 +9,28 @@ from .forms import RestaurantForm
 from .models import Restaurant
 
 
-class HomePageView(TemplateView):
+class HomePageView(ListView):
+    model = Restaurant
     template_name = "core/index.html"
+    context_object_name = "top_restaurants"
+
+    def get_queryset(self):
+        top_restaurants = Restaurant.objects.filter(
+            is_approved=True, user__is_active=True
+        )[:8]
+        return top_restaurants
+
+
+class RestaurantListView(ListView):
+    model = Restaurant
+    template_name = "core/restaurant_list.html"
+    context_object_name = "restaurant_list"
+
+    def get_queryset(self):
+        restaurant_list = Restaurant.objects.filter(
+            is_approved=True, user__is_active=True
+        )[:8]
+        return restaurant_list
 
 
 class RestaurantProfileView(LoginRequiredMixin, View):
