@@ -10,15 +10,17 @@
                     <div class="company-info">
                         <div class="img-holder">
                             <figure>
-                                <img src="{{ restaurant.user_profile.profileImageUrl }}" alt="">
+                                <img src="{{ restaurant.user_profile.profile_pic.url }}" alt="">
                             </figure>
                         </div>
 
                         <div class="text-holder">
                             <span class="restaurant-title">{{ restaurant.restaurant_name }}</span>
                             <div class="text">
-                                <i class="icon-location"></i>
-                                <p>{{ restaurant.user_profile.address }}</p>
+                                {% if restaurant.user_profile.address is not None %}
+                                    <i class="icon-location"></i>
+                                    <p>{{ restaurant.user_profile.address }}</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

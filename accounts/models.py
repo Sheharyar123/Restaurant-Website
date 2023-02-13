@@ -66,10 +66,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     profile_pic = models.ImageField(
-        upload_to="users/profile_pics", null=True, blank=True
+        upload_to="users/profile_pics",
+        null=True,
+        blank=True,
+        default="users/profile_pics/default-food.png",
     )
     cover_photo = models.ImageField(
-        upload_to="users/cover_photos", null=True, blank=True
+        upload_to="users/cover_photos",
+        null=True,
+        blank=True,
     )
     address = models.CharField(max_length=255, null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
@@ -102,9 +107,3 @@ class UserProfile(models.Model):
         if not self.cover_photo:
             return ""
         return self.cover_photo.url
-
-    @property
-    def profileImageUrl(self):
-        if not self.profile_pic:
-            return ""
-        return self.profile_pic.url

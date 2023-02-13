@@ -79,7 +79,10 @@ class DeleteCategoryView(LoginRequiredMixin, View):
 
 class AddFoodItemView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        form = FoodItemForm
+        form = FoodItemForm()
+        form.fields["category"].queryset = Category.objects.filter(
+            restaurant=get_restaurant(request)
+        )
         context = {"form": form}
         return render(request, "menu/add_food_item.html", context)
 
@@ -100,6 +103,9 @@ class EditFoodItemView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         food_item = FoodItem.objects.get(slug=kwargs.get("food_item_slug"))
         form = FoodItemForm(instance=food_item)
+        form.fields["category"].queryset = Category.objects.filter(
+            restaurant=get_restaurant(request)
+        )
         context = {"form": form, "food_item": food_item}
         return render(request, "menu/edit_food_item.html", context)
 

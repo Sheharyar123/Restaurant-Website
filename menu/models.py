@@ -58,8 +58,3 @@ class FoodItem(models.Model):
 
     def __str__(self):
         return self.food_title
-
-    @property
-    def foodItemImageUrl(self):
-        url = self.image.url or ""
-        return url
