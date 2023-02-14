@@ -24,28 +24,29 @@
                                 </div>
                                 <div class="listing simple">
                                     <ul>
-                                        <li>
-                                            <div class="img-holder">
-                                                <figure>
-                                                    <a href="{% url 'core:restaurant_detail' restaurant.restaurant_slug %}"><img src="{{ restaurant.user_profile.profile_pic.url }}" class="img-list wp-post-image" alt=""></a>
-                                                </figure>
-                                                <span class="restaurant-status close"><em class="bookmarkRibbon"></em>Close</span>
-                                            </div>
-                                            <div class="text-holder">
-                                                <div class="post-title">
-                                                    <h5>
-                                                        <a href="{% url 'core:restaurant_detail' restaurant.restaurant_slug %}">{{ restaurant.restaurant_name }}</a>
-                                                    </h5>
+                                        {% for restaurant in restaurant_list %}
+                                            <li>
+                                                <div class="img-holder">
+                                                    <figure>
+                                                        <a href="{% url 'core:restaurant_detail' restaurant.restaurant_slug %}"><img src="{{ restaurant.user_profile.profile_pic.url }}" class="img-list wp-post-image" alt=""></a>
+                                                    </figure>
+                                                    <span class="restaurant-status close"><em class="bookmarkRibbon"></em>Close</span>
                                                 </div>
-                                                <span class="post-categories"><span>Address :
-                                                    </span>{{ restaurant.user_profile.address }}</span>
-                                                
-                                            </div>
-                                            <div class="list-option">
-
-                                                <a href="{% url 'core:restaurant_detail' restaurant.restaurant_slug %}" class="viewmenu-btn text-color">View Menu</a>
-                                            </div>
-                                        </li>
+                                                <div class="text-holder">
+                                                    <div class="post-title">
+                                                        <h5>
+                                                            <a href="{% url 'core:restaurant_detail' restaurant.restaurant_slug %}">{{ restaurant.restaurant_name }}</a>
+                                                        </h5>
+                                                    </div>
+                                                    <span class="post-categories"><span>Address :
+                                                        </span>{{ restaurant.user_profile.address }}</span>
+                                                    
+                                                </div>
+                                                <div class="list-option">
+                                                    <a href="{% url 'core:restaurant_detail' restaurant.restaurant_slug %}" class="viewmenu-btn text-color">View Menu</a>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
                                     </ul>
                                 </div>
                                 

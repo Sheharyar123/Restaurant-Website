@@ -117,7 +117,7 @@
                                                                 <span class="price">${{ food_item.price }}</span>
                                                                 <a href="#" class="remove_from_cart" style="margin-right: 28px;"><i class="icon-minus text-color"></i></a>
                                                                 <label id="qty">0</label>
-                                                                <a href="#" class="add_to_cart"><i class="icon-plus4 text-color"></i></a>
+                                                                <a href="#" class="add_to_cart" data-id="{{ food_item.id}}" data-url="{% url 'cart:add_to_cart' food_item.id %}"><i class="icon-plus4 text-color"></i></a>
                                                             </div>
                                                         </li>
                                                     {% endfor %}

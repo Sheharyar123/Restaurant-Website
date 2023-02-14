@@ -17,7 +17,7 @@ urlpatterns = [
         name="restaurant_profile",
     ),
     path(
-        "restaurant/<slug:restaurant_slug>/",
+        "restaurant/<restaurant_slug>/",
         RestaurantDetailView.as_view(),
         name="restaurant_detail",
     ),

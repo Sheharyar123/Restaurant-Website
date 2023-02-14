@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import View, ListView, DetailView
 
 from accounts.forms import UserProfileForm
@@ -70,16 +70,16 @@ class RestaurantProfileView(LoginRequiredMixin, View):
             return render(request, "core/restaurant_profile.html", context)
 
 
-class RestaurantDetailView(LoginRequiredMixin, DetailView):
+class RestaurantDetailView(DetailView):
     model = Restaurant
     template_name = "core/restaurant_detail.html"
     context_object_name = "restaurant"
 
     def get_object(self):
-        queryset = Restaurant.objects.get(
-            restaurant_slug=self.kwargs.get("restaurant_slug"), user=self.request.user
+        restaurant = get_object_or_404(
+            Restaurant, restaurant_slug=self.kwargs.get("restaurant_slug")
         )
-        return queryset
+        return restaurant
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
