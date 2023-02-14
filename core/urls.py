@@ -19,6 +19,6 @@ urlpatterns = [
     path(
         "restaurant/<slug:restaurant_slug>/",
         RestaurantDetailView.as_view(),
-        name="my_restaurant",
+        name="restaurant_detail",
     ),
 ]

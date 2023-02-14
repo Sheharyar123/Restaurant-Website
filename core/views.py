@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Prefetch
 from django.shortcuts import render, redirect
 from django.views.generic import View, ListView, DetailView
 
 from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
+from menu.models import Category, FoodItem
 from .forms import RestaurantForm
 from .models import Restaurant
 
@@ -78,3 +80,12 @@ class RestaurantDetailView(LoginRequiredMixin, DetailView):
             restaurant_slug=self.kwargs.get("restaurant_slug"), user=self.request.user
         )
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["categories"] = Category.objects.filter(
+            restaurant=self.get_object()
+        ).prefetch_related(
+            Prefetch("food_items", queryset=FoodItem.objects.filter(is_available=True))
+        )
+        return context
