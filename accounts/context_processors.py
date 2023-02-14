@@ -1,5 +1,7 @@
 from core.models import Restaurant
 
+from django.conf import settings
+
 
 def get_restaurant(request):
     try:
@@ -7,3 +9,7 @@ def get_restaurant(request):
     except:
         restaurant = None
     return dict(restaurant=restaurant)
+
+
+def get_google_api_key(request):
+    return dict(GOOGLE_API_KEY=settings.GOOGLE_API_KEY)

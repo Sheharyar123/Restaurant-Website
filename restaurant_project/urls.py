@@ -8,6 +8,7 @@ urlpatterns = [
     path("", include("core.urls")),
     path("accounts/", include("accounts.urls")),
     path("restaurant/menu/", include("menu.urls")),
+    path("cart/", include("cart.urls")),
 ]
 
 if settings.DEBUG:

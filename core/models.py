@@ -5,8 +5,6 @@ from django.urls import reverse
 from accounts.models import UserProfile
 from accounts.utils import send_approval_notification
 
-# Create your models here.
-
 User = get_user_model()
 
 
