@@ -6,6 +6,7 @@ from django.views.generic import View, ListView, DetailView
 
 from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
+from cart.models import Cart
 from menu.models import Category, FoodItem
 from .forms import RestaurantForm
 from .models import Restaurant
@@ -88,4 +89,10 @@ class RestaurantDetailView(DetailView):
         ).prefetch_related(
             Prefetch("food_items", queryset=FoodItem.objects.filter(is_available=True))
         )
+        try:
+            context["cart_items"] = Cart.objects.filter(
+                user=self.request.user,
+            )
+        except:
+            context["cart_items"] = []
         return context
