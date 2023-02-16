@@ -62,6 +62,7 @@ TEMPLATES = [
                 "accounts.context_processors.get_restaurant",
                 "accounts.context_processors.get_google_api_key",
                 "cart.context_processors.get_cart_counter",
+                "cart.context_processors.get_cart_amounts",
             ],
         },
     },

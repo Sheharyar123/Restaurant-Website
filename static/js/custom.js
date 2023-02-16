@@ -53,6 +53,11 @@ $(document).ready(function () {
           const item_qty = response.cart_quantity;
           $("#cart_counter").html(total_cart_count);
           $("#qty-" + food_id).html(item_qty);
+          applyCartAmounts(
+            response.cart_amount["subtotal"],
+            response.cart_amount["tax"],
+            response.cart_amount["grand_total"]
+          );
         }
       },
     });
@@ -69,6 +74,7 @@ $(document).ready(function () {
     e.preventDefault();
     food_id = $(this).attr("data-id");
     url = $(this).attr("data-url");
+    cart_id = $(this).attr("data-cart-id");
 
     $.ajax({
       type: "GET",
@@ -94,8 +100,75 @@ $(document).ready(function () {
           const item_qty = response.cart_quantity;
           $("#cart_counter").html(total_cart_count);
           $("#qty-" + food_id).html(item_qty);
+          if (window.location.pathname == "/cart/") {
+            deleteItem(response.cart_quantity, cart_id);
+            checkEmptyCart();
+            applyCartAmounts(
+              response.cart_amount["subtotal"],
+              response.cart_amount["tax"],
+              response.cart_amount["grand_total"]
+            );
+          }
         }
       },
     });
   });
+
+  $(".delete_cart_item").on("click", function (e) {
+    e.preventDefault();
+    cart_id = $(this).attr("data-id");
+    url = $(this).attr("data-url");
+
+    $.ajax({
+      type: "GET",
+      url: url,
+      success: function (response) {
+        if (response.status == "Failed") {
+          swal({
+            title: response.message,
+            text: "",
+            icon: "error",
+          });
+        } else {
+          const total_cart_count = response.cart_counter["cart_count"];
+          $("#cart_counter").html(total_cart_count);
+          swal({
+            title: response.message,
+            text: "",
+            icon: "success",
+          });
+          deleteItem(0, cart_id);
+          checkEmptyCart();
+          applyCartAmounts(
+            response.cart_amount["subtotal"],
+            response.cart_amount["tax"],
+            response.cart_amount["grand_total"]
+          );
+        }
+      },
+    });
+  });
+  // Function to delete cart item
+  function deleteItem(cart_item_qty, cart_item_id) {
+    if (cart_item_qty == 0) {
+      document.querySelector(`#cart-item-${cart_item_id}`).remove();
+    }
+  }
+
+  // Function to check if cart is empty and display text
+  function checkEmptyCart() {
+    const cart_counter = document.querySelector("#cart_counter").innerHTML;
+    if (cart_counter == 0) {
+      document.querySelector("#empty-cart").style.display = "block";
+    }
+  }
+
+  // Function to get subtotal, tax and grand_total
+  function applyCartAmounts(subtotal, tax, grand_total) {
+    if (window.location.pathname == "/cart/") {
+      $("#subtotal").html(subtotal);
+      $("#tax").html(tax);
+      $("#total").html(grand_total);
+    }
+  }
 });
