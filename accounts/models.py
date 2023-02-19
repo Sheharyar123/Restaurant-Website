@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, UserManager, PermissionsMixin
+from django.contrib.gis.db import models as gismodels
+from django.contrib.gis.geos import Point
 
 
 class BaseUserManager(UserManager):
@@ -83,6 +85,7 @@ class UserProfile(models.Model):
     pin_code = models.CharField(max_length=50, null=True, blank=True)
     latitude = models.CharField(max_length=20, blank=True, null=True)
     longitude = models.CharField(max_length=20, blank=True, null=True)
+    location = gismodels.PointField(null=True, blank=True, srid=4326)
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
@@ -101,6 +104,11 @@ class UserProfile(models.Model):
 
     def user_last_name(self):
         return self.user.last_name
+
+    def save(self, *args, **kwargs):
+        if self.latitude and self.longitude:
+            self.location = Point(float(self.longitude), float(self.latitude))
+        return super(UserProfile, self).save(*args, **kwargs)
 
     @property
     def coverImageUrl(self):

@@ -27,10 +27,12 @@
                       name="location"
                       placeholder="Enter your delivery location"
                       autocomplete="off"
+                      id="location"
                     />
                     <span
                       id="foodbakery_radius_location_open"
                       class="foodbakery-radius-location"
+                      onclick="getLocation()"
                       ><i class="icon-target5"></i
                     ></span>
                   </form>
@@ -75,3 +77,41 @@
       </div>
     </div>
 </header>
+
+
+<script>
+  let x = document.getElementById("location");
+  let current_location = sessionStorage.getItem("current_location")
+  if(current_location != "") {
+    x.value = current_location;
+  }
+  
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition);
+    } else { 
+      x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+  }
+  
+  function showPosition(position) {
+    // x.innerHTML = "Latitude: " + position.coords.latitude + 
+    // "<br>Longitude: " + position.coords.longitude;
+    let lat = position.coords.latitude;
+    let lng = position.coords.longitude;
+    
+    const GOOGLE_API_KEY = "{{ GOOGLE_API_KEY }}";
+    const url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"+&key="+GOOGLE_API_KEY;
+
+    $.ajax({
+      url: url,
+      type: "GET",
+      success: function(response){
+          var current_location = response.results[0].formatted_address
+          x.value = current_location
+          sessionStorage.setItem("current_location", current_location)
+          window.location = '?lat='+lat+'&lng='+lng
+      }
+  })
+  }
+  </script>

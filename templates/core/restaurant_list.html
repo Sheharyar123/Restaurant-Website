@@ -40,6 +40,9 @@
                                                     </div>
                                                     <span class="post-categories"><span>Address :
                                                         </span>{{ restaurant.user_profile.address }}</span>
+                                                    {% if user_address %}
+                                                    <span><strong>{{ restaurant.kms }}km</strong> from {{ user_address }}</span>
+                                                    {% endif %}
                                                     
                                                 </div>
                                                 <div class="list-option">
