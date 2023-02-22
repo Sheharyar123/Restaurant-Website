@@ -1,9 +1,12 @@
+from datetime import date
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
+from django.db import IntegrityError
 from django.db.models import Prefetch, Q
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import View, ListView, DetailView
 
@@ -11,8 +14,9 @@ from accounts.forms import UserProfileForm
 from accounts.models import UserProfile
 from cart.models import Cart
 from menu.models import Category, FoodItem
-from .forms import RestaurantForm
-from .models import Restaurant
+from menu.utils import get_restaurant
+from .forms import RestaurantForm, OpeningHourForm
+from .models import Restaurant, OpeningHour
 
 
 def get_or_set_current_location(request):
@@ -123,6 +127,15 @@ class RestaurantDetailView(DetailView):
         ).prefetch_related(
             Prefetch("food_items", queryset=FoodItem.objects.filter(is_available=True))
         )
+        context["opening_hours"] = OpeningHour.objects.filter(
+            restaurant=self.get_object()
+        )
+        today_date = date.today()
+        today = today_date.isoweekday()
+        context["current_opening_hours"] = OpeningHour.objects.filter(
+            restaurant=self.get_object(), day=today
+        )
+
         try:
             context["cart_items"] = Cart.objects.filter(
                 user=self.request.user,
@@ -176,3 +189,67 @@ class SearchView(View):
 
             context = {"restaurant_list": restaurant_list, "user_address": user_address}
             return render(request, "core/restaurant_list.html", context)
+
+
+class OpeningHoursView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        opening_hours = OpeningHour.objects.filter(restaurant=get_restaurant(request))
+        form = OpeningHourForm
+        context = {"form": form, "opening_hours": opening_hours}
+        return render(request, "core/opening_hours.html", context)
+
+
+class AddOpeningHourView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            day = request.POST.get("day")
+            from_hour = request.POST.get("from_hour")
+            to_hour = request.POST.get("to_hour")
+            is_closed = request.POST.get("is_closed")
+            try:
+                opening_hour = OpeningHour.objects.create(
+                    restaurant=get_restaurant(request),
+                    day=day,
+                    from_hour=from_hour,
+                    to_hour=to_hour,
+                    is_closed=is_closed,
+                )
+                if opening_hour:
+                    day = OpeningHour.objects.get(id=opening_hour.id)
+                    if day.is_closed:
+                        return JsonResponse(
+                            {
+                                "status": "Success",
+                                "id": opening_hour.id,
+                                "day": day.get_day_display(),
+                                "is_closed": "Closed",
+                            }
+                        )
+                    else:
+                        return JsonResponse(
+                            {
+                                "status": "Success",
+                                "id": opening_hour.id,
+                                "day": day.get_day_display(),
+                                "from_hour": day.from_hour,
+                                "to_hour": day.to_hour,
+                            }
+                        )
+            except IntegrityError as e:
+                return JsonResponse(
+                    {
+                        "status": "Failed",
+                        "message": f"{from_hour} to {to_hour} already exists for this day!",
+                    }
+                )
+        else:
+            HttpResponse("Invalid Request")
+
+
+class RemoveOpeningHourView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            hour_id = self.kwargs.get("hour_id")
+            hour = get_object_or_404(OpeningHour, id=hour_id)
+            hour.delete()
+            return JsonResponse({"status": "Success", "id": hour_id})

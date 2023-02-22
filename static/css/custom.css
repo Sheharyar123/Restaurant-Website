@@ -30,3 +30,10 @@
 .show-notification strong {
   padding-right: 5px;
 }
+
+#opening_hours select{
+  padding: 5px 10px !important;
+}
+.btn-primary.add_hour{
+  padding: 7px 15px;
+}

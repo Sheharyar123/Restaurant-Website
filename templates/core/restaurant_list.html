@@ -30,7 +30,11 @@
                                                     <figure>
                                                         <a href="{% url 'core:restaurant_detail' restaurant.restaurant_slug %}"><img src="{{ restaurant.user_profile.profile_pic.url }}" class="img-list wp-post-image" alt=""></a>
                                                     </figure>
-                                                    <span class="restaurant-status close"><em class="bookmarkRibbon"></em>Close</span>
+                                                    {% if restaurant.is_open %}
+                                                        <span class="restaurant-status open"><em class="bookmarkRibbon"></em>Open</span>
+                                                    {% else %}
+                                                        <span class="restaurant-status close"><em class="bookmarkRibbon"></em>Close</span>
+                                                    {% endif %}    
                                                 </div>
                                                 <div class="text-holder">
                                                     <div class="post-title">
@@ -46,7 +50,7 @@
                                                     
                                                 </div>
                                                 <div class="list-option">
-                                                    <a href="{% url 'core:restaurant_detail' restaurant.restaurant_slug %}" class="viewmenu-btn text-color">View Menu</a>
+                                                    <a href="{{ restaurant.get_absolute_url }}" class="viewmenu-btn text-color">View Menu</a>
                                                 </div>
                                             </li>
                                         {% endfor %}

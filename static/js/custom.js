@@ -211,4 +211,77 @@ $(document).ready(function () {
       $("#total").html(grand_total);
     }
   }
+
+  // Add opening hour
+  $(".add_hour").on("click", function (e) {
+    e.preventDefault();
+    const day = document.getElementById("id_day").value;
+    const from_hour = document.getElementById("id_from_hour").value;
+    const to_hour = document.getElementById("id_to_hour").value;
+    let is_closed = document.getElementById("id_is_closed").checked;
+    const csrf_token = $("input[name=csrfmiddlewaretoken]").val();
+    const url = document.getElementById("opening_hour_url").value;
+    console.log(day, from_hour, to_hour, is_closed, csrf_token);
+
+    if (is_closed) {
+      is_closed = "True";
+      condition = "day != ''";
+    } else {
+      is_closed = "False";
+      condition = "day != '' && from_hour != '' && to_hour != ''";
+    }
+
+    if (eval(condition)) {
+      $.ajax({
+        type: "POST",
+        url: url,
+        data: {
+          day: day,
+          from_hour: from_hour,
+          to_hour: to_hour,
+          is_closed: is_closed,
+          csrfmiddlewaretoken: csrf_token,
+        },
+        success: function (response) {
+          if (response.status == "Success") {
+            if (response.is_closed == "Closed") {
+              html = `<tr id=hour-${response.id}><td><strong>${response.day}</strong></td><td>Closed</td><td><a href='' class=remove_hour data-url=/opening_hours/remove/${response.id}>Remove</a></td></tr>`;
+            } else {
+              html = `<tr id=hour-${response.id}><td><strong>${response.day}</strong></td><td>${response.from_hour} to ${response.to_hour}</td><td><a href='' class=remove_hour data-url=/opening_hours/remove/${response.id}>Remove</a></td></tr>`;
+            }
+            $(".opening_hours").append(html);
+            document.getElementById("opening_hours").reset();
+          } else {
+            swal({
+              title: response.message,
+              text: "",
+              icon: "error",
+            });
+          }
+        },
+      });
+    } else {
+      swal({
+        title: "Please fill all the relevant fields",
+        text: "",
+        icon: "info",
+      });
+    }
+  });
+
+  // Remove opening hour
+  $(document).on("click", ".remove_hour", function (e) {
+    e.preventDefault();
+    url = $(this).attr("data-url");
+
+    $.ajax({
+      type: "GET",
+      url: url,
+      success: function (response) {
+        if (response.status == "Success") {
+          document.getElementById("hour-" + response.id).remove();
+        }
+      },
+    });
+  });
 });
