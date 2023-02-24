@@ -8,6 +8,7 @@ from .views import (
     RestaurantListView,
     RestaurantProfileView,
     RestaurantDetailView,
+    CustomerProfileView,
 )
 
 app_name = "core"
@@ -33,4 +34,5 @@ urlpatterns = [
         RestaurantDetailView.as_view(),
         name="restaurant_detail",
     ),
+    path("customer/profile/", CustomerProfileView.as_view(), name="customer_profile"),
 ]

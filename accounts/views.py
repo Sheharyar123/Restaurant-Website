@@ -2,7 +2,7 @@ from django.contrib import messages, auth
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.http import urlsafe_base64_decode
 from django.views.generic import View
 
@@ -216,7 +216,9 @@ class DashboardView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         user = request.user
         if user.role == User.CUSTOMER:
-            return render(request, "accounts/customer_dashboard.html")
+            user_profile = get_object_or_404(UserProfile, user=request.user)
+            context = {"user_profile": user_profile}
+            return render(request, "accounts/customer_dashboard.html", context)
         elif user.role == User.RESTAURANT:
             # restaurant = Restaurant.objects.get(user=request.user)
             # context = {"restaurant": restaurant}

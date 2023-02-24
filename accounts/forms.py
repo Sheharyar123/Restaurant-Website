@@ -29,10 +29,12 @@ class UserProfileForm(forms.ModelForm):
     profile_pic = forms.FileField(
         widget=forms.FileInput(attrs={"class": "btn btn-info"}),
         validators=[allow_only_images],
+        required=False,
     )
     cover_photo = forms.FileField(
         widget=forms.FileInput(attrs={"class": "btn btn-info"}),
         validators=[allow_only_images],
+        required=False,
     )
 
     class Meta:

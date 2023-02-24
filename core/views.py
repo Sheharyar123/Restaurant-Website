@@ -15,7 +15,7 @@ from accounts.models import UserProfile
 from cart.models import Cart
 from menu.models import Category, FoodItem
 from menu.utils import get_restaurant
-from .forms import RestaurantForm, OpeningHourForm
+from .forms import RestaurantForm, OpeningHourForm, UserInfoForm
 from .models import Restaurant, OpeningHour
 
 
@@ -253,3 +253,26 @@ class RemoveOpeningHourView(LoginRequiredMixin, View):
             hour = get_object_or_404(OpeningHour, id=hour_id)
             hour.delete()
             return JsonResponse({"status": "Success", "id": hour_id})
+
+
+class CustomerProfileView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        user_profile = get_object_or_404(UserProfile, user=request.user)
+        form = UserInfoForm(instance=request.user)
+        up_form = UserProfileForm(instance=user_profile)
+        context = {"form": form, "up_form": up_form, "user_profile": user_profile}
+        return render(request, "core/customer_profile.html", context)
+
+    def post(self, request, *args, **kwargs):
+        user_profile = get_object_or_404(UserProfile, user=request.user)
+        form = UserInfoForm(request.POST, instance=request.user)
+        up_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+        if form.is_valid() and up_form.is_valid():
+            form.save()
+            up_form.save()
+            messages.success(request, "Your profile was updated successfully!")
+            return redirect("accounts:dashboard")
+        else:
+            messages.error(request, "There was a problem updating your profile")
+            context = {"form": form, "up_form": up_form, "user_profile": user_profile}
+            return render(request, "core/customer_profile.html", context)

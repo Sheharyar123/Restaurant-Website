@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, UserManager, PermissionsMixin
 from django.contrib.gis.db import models as gismodels
 from django.contrib.gis.geos import Point
+from django.conf import settings
 
 
 class BaseUserManager(UserManager):
@@ -71,7 +72,6 @@ class UserProfile(models.Model):
         upload_to="users/profile_pics",
         null=True,
         blank=True,
-        default="users/profile_pics/default-food.png",
     )
     cover_photo = models.ImageField(
         upload_to="users/cover_photos",
@@ -115,3 +115,12 @@ class UserProfile(models.Model):
         if not self.cover_photo:
             return ""
         return self.cover_photo.url
+
+    @property
+    def profileImageUrl(self):
+        if not self.profile_pic:
+            if self.user.role == 1:
+                return settings.STATIC_URL + "extra-images/default-food.png"
+            else:
+                return settings.STATIC_URL + "extra-images/avatar.jpg"
+        return self.profile_pic.url

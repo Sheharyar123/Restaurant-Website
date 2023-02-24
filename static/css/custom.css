@@ -37,3 +37,7 @@
 .btn-primary.add_hour{
   padding: 7px 15px;
 }
+
+.user-dashboard .field-holder input {
+  border: 1px solid #c7c6c6 !important ;
+}
