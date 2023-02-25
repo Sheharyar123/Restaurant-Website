@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from .models import Restaurant, OpeningHour
 from accounts.validators import allow_only_images
+from orders.models import Order
 
 User = get_user_model()
 
@@ -27,3 +28,18 @@ class UserInfoForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "phone_no"]
+
+
+class CheckoutForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = [
+            "first_name",
+            "last_name",
+            "phone_no",
+            "address",
+            "city",
+            "state",
+            "country",
+            "pin_code",
+        ]

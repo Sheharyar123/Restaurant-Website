@@ -15,7 +15,7 @@ from accounts.models import UserProfile
 from cart.models import Cart
 from menu.models import Category, FoodItem
 from menu.utils import get_restaurant
-from .forms import RestaurantForm, OpeningHourForm, UserInfoForm
+from .forms import RestaurantForm, OpeningHourForm, UserInfoForm, CheckoutForm
 from .models import Restaurant, OpeningHour
 
 
@@ -276,3 +276,22 @@ class CustomerProfileView(LoginRequiredMixin, View):
             messages.error(request, "There was a problem updating your profile")
             context = {"form": form, "up_form": up_form, "user_profile": user_profile}
             return render(request, "core/customer_profile.html", context)
+
+
+class CheckoutView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        user_profile = UserProfile.objects.get(user=request.user)
+        default_values = {
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+            "address": user_profile.address,
+            "phone_no": request.user.phone_no,
+            "city": user_profile.city,
+            "state": user_profile.state,
+            "country": user_profile.country,
+            "pin_code": user_profile.pin_code,
+        }
+        form = CheckoutForm(initial=default_values)
+        cart_items = Cart.objects.filter(user=request.user)
+        context = {"form": form, "cart_items": cart_items}
+        return render(request, "core/checkout.html", context)
