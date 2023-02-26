@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load static %}
 
 {% block title %}Food Online | Cart{% endblock title %}
 
@@ -16,11 +17,8 @@
                             <div class="tab-content">
                                 <div id="home" class="tab-pane in active">
                                     <div class="menu-itam-holder">
-                                        <div id="empty-cart" style="display: none;">
-                                            <h2 class="text-center p-5">Cart is empty</h2>
-                                        </div>
                                         <div id="menu-item-list-6272" class="menu-itam-list">
-                                            <form action="{% url 'core:restaurant_profile' %}" method="POST" enctype="multipart/form-data">
+                                            <form action="{% url 'orders:place_order' %}" method="POST">
                                                 {% csrf_token %}
                                                 <div class="form-fields-set">
                                                     <ul>
@@ -62,7 +60,6 @@
                                                         </li>
                                                     </ul>
                                                 </div>
-                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -129,8 +126,23 @@
                                                             <span id="total">{{ grand_total }}</span>
                                                         </span>
                                                     </li>
-                                                    <a href="{% url 'core:checkout' %}" class="btn btn-danger p-2 mt-3 mb-3 w-100">PROCEED TO CHECKOUT</a>
+                                                    <!-- Payment Method -->
+                                                    <h5 class="mt-2">SELECT PAYMENT METHOD</h5>
+                                                    <div class="payment">
+                                                        <label>
+                                                            <input type="radio" name="payment_method" value="Paypal" />
+                                                            <img src="{% static 'images/PayPal.png' %}" alt="PayPal Logo" width="100" />
+                                                        </label>
+                                                        &emsp;
+                                                        <label>
+                                                            <input type="radio" name="payment_method" value="Stripe" />
+                                                            <img src="{% static 'images/stripe_logo.png' %}" alt="Stripe Logo" width="100" />
+                                                        </label>
+                                                    </div> 
+                                                    <span class="text-danger" id="payment_method_error"></span>
+                                                    <button type="submit" onclick="return payMethodConfirm()" class="btn btn-danger p-2 mt-3 mb-3 w-100">PLACE ORDER</button>
                                                 </ul>
+                                            </form>
                                             </div>
                                         </div>
                                     </div>
@@ -144,4 +156,16 @@
         </div>
     </div>
 
+<script>
+    function payMethodConfirm() {
+        const payMethod = $("input[name=payment_method]:checked").val();
+        if (!payMethod) {
+            $("#payment_method_error").html("Select payment method!");
+        }
+    }
+
+    $("input[name=payment_method]").on("change", function(){
+        $("#payment_method_error").html("");
+    });
+</script>
 {% endblock content %}

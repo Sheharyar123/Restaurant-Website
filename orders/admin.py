@@ -13,7 +13,7 @@ class PaymentAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         "user",
-        "payment",
+        "payment_method",
         "first_name",
         "last_name",
         "city",

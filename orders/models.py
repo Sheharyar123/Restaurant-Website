@@ -37,7 +37,7 @@ class Order(models.Model):
     payment = models.ForeignKey(
         Payment, on_delete=models.SET_NULL, null=True, related_name="orders"
     )
-    order_number = models.CharField(max_length=20, unique=True)
+    order_number = models.CharField(max_length=50, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     phone_no = models.CharField(max_length=50)

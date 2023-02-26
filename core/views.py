@@ -280,7 +280,11 @@ class CustomerProfileView(LoginRequiredMixin, View):
 
 class CheckoutView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
+        cart_items = Cart.objects.filter(user=request.user)
+        if cart_items.count() < 1:
+            return redirect("core:restaurant_list")
         user_profile = UserProfile.objects.get(user=request.user)
+
         default_values = {
             "first_name": request.user.first_name,
             "last_name": request.user.last_name,
@@ -292,6 +296,5 @@ class CheckoutView(LoginRequiredMixin, View):
             "pin_code": user_profile.pin_code,
         }
         form = CheckoutForm(initial=default_values)
-        cart_items = Cart.objects.filter(user=request.user)
         context = {"form": form, "cart_items": cart_items}
         return render(request, "core/checkout.html", context)
