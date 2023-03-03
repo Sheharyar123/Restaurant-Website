@@ -3,11 +3,8 @@ from .models import Payment, Order, OrderedFood
 
 
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ["transaction_id", "user", "amount", "payment_choice", "paid"]
-    list_editable = [
-        "paid",
-    ]
-    list_filter = ["payment_choice", "paid"]
+    list_display = ["transaction_id", "user", "amount", "payment_choice", "status"]
+    list_filter = ["payment_choice", "status"]
 
 
 class OrderAdmin(admin.ModelAdmin):

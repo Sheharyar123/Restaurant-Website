@@ -17,6 +17,18 @@
                                 <div id="home" class="tab-pane in active">
                                     <div class="menu-itam-holder">
                                         <div id="menu-item-list-6272" class="menu-itam-list">
+                                            <div class="billing_address">
+                                                <div><strong>{{ order.name }}</strong></div>
+                                                <div>{{ order.address }}</div>
+                                                <div>{{ order.city }} - {{ order.pin_code }}</div>
+                                                <div>{{ order.state }}, {{ order.country }}</div>
+                                                <div><strong>Phone: </strong>{{ order.phone_no }}</div>
+                                                <div><strong>Email: </strong>{{ order.email }}</div>
+                                                <div><strong>Payment: </strong>{{ order.payment_method }}</div>
+                                                <br>
+                                                <div><a href="{% url 'core:checkout' %}" class="btn btn-outline-danger">Edit</a></div>
+                                                <br>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -33,47 +45,149 @@
                                 <div id="home" class="tab-pane in active">
                                     <div class="menu-itam-holder">
                                         
-                                        <div id="menu-item-list-6272" class="menu-itam-list">
-                                            <div>
-                                                <ul>
-                                                    <li style="list-style-type: none;" class="mb-0">
-                                                        Subtotal
-                                                        <span class="price float-right">
-                                                            <span class="currency">$</span>
-                                                            <span id="subtotal">{{ subtotal }}</span>
-                                                        </span>
-                                                    </li>
-                                                    {% for key, value in tax_dict.items %}
-                                                        {% for tax_per, tax_amount in value.items %}
-                                                            <li style="list-style-type: none;" class="mb-0">
-                                                                {{ key }} <strong>({{ tax_per }}%)</strong>
-                                                                <span class="price float-right">
-                                                                    <span class="currency">$</span>
-                                                                    <span id="tax-{{ key }}">{{ tax_amount }}</span>
-                                                                </span>
-                                                            </li>
-                                                        {% endfor %}
+                                        {% comment %} <div id="menu-item-list-6272" class="menu-itam-list"> {% endcomment %}
+                                        <div>
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    {% for item in cart_items %}
+                                                        <tr>
+                                                            <td><img src="{{ item.food_item.image.url }}" width="40" alt="Food image" /></td>
+                                                            <td><strong>{{ item.food_item.food_title }}</strong></td>
+                                                            <td>{{ item.quantity }}</td>
+                                                            <td>{{ item.food_item.price }}</td>
+                                                        </tr>
                                                     {% endfor %}
-                                                    <li style="list-style-type: none; font-weight: 600;" class="mb-0">
-                                                        Total
-                                                        <span class="price float-right">
-                                                            <span class="currency">$</span>
-                                                            <span id="total">{{ grand_total }}</span>
-                                                        </span>
-                                                    </li>
-                                                    <a href="{% url 'core:checkout' %}" class="btn btn-danger p-2 mt-3 mb-3 w-100">PROCEED TO CHECKOUT</a>
-                                                </ul>
-                                            </div>
+                                                </tbody>
+                                            </table>    
+                                            <ul>
+                                                <li style="list-style-type: none;" class="mb-0">
+                                                    Subtotal
+                                                    <span class="price float-right">
+                                                        <span class="currency">$</span>
+                                                        <span id="subtotal">{{ subtotal }}</span>
+                                                    </span>
+                                                </li>
+                                                {% for key, value in tax_dict.items %}
+                                                    {% for tax_per, tax_amount in value.items %}
+                                                        <li style="list-style-type: none;" class="mb-0">
+                                                            {{ key }} <strong>({{ tax_per }}%)</strong>
+                                                            <span class="price float-right">
+                                                                <span class="currency">$</span>
+                                                                <span id="tax-{{ key }}">{{ tax_amount }}</span>
+                                                            </span>
+                                                        </li>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                                <li style="list-style-type: none; font-weight: 600;" class="mb-0">
+                                                    Total
+                                                    <span class="price float-right">
+                                                        <span class="currency">$</span>
+                                                        <span id="total">{{ grand_total }}</span>
+                                                    </span>
+                                                </li>
+                                                {% comment %} <a href="{% url 'core:checkout' %}" class="btn btn-danger p-2 mt-3 mb-3 w-100">PROCEED TO CHECKOUT</a> {% endcomment %}
+                                                <div id="paypal-button-container"></div>
+                                            </ul>
                                         </div>
+                                        {% comment %} </div> {% endcomment %}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
                 </div>
             </div>
         </div>
     </div>
 
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                        }
+                    }
+                }
+            return cookieValue;
+        }
+        const grand_total = "{{ grand_total }}";
+        const url = "{% url 'orders:receive_payment' %}";
+        const order_number = "{{ order.order_number }}";
+        const csrftoken = getCookie('csrftoken');
+        function initPayPalButton() {
+          paypal.Buttons({
+            style: {
+              shape: 'rect',
+              color: 'blue',
+              layout: 'vertical',
+              label: 'paypal',
+              
+            },
+            createOrder: function(data, actions) {
+              return actions.order.create({
+                purchase_units: [
+                {
+                    "amount":
+                {
+                    "currency_code":"USD",
+                    "value":grand_total
+                }
+                }
+            ]
+              });
+            },
+      
+            onApprove: function(data, actions) {
+              return actions.order.capture().then(function(orderData) {
+                
+                // Full available details
+                // console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+                const transaction = orderData.purchase_units[0].payments.captures[0];
+                console.log(transaction)
+                const transaction_id = transaction.id;
+                const status = transaction.status;
+                const payment_choice = "Paypal";
+                send_transaction_data(transaction_id, status, payment_choice);
+                // Show a success message within this page, e.g.
+                const element = document.getElementById('paypal-button-container');
+                element.innerHTML = '';
+                element.innerHTML = '<h3>Thank you for your payment!</h3>';
+                
+                // Or go to another URL:  actions.redirect('thank_you.html');
+                
+              });
+            },
+      
+            onError: function(err) {
+              console.log(err);
+            }
+          }).render('#paypal-button-container');
+        }
+        initPayPalButton();
+
+        function send_transaction_data(transaction_id, status, payment_choice) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {
+                    order_number: order_number,
+                    transaction_id: transaction_id,
+                    status: status,
+                    payment_choice: payment_choice,
+                    csrfmiddlewaretoken: csrftoken,
+                },
+                success: function(response) {
+                    console.log(response);
+                }
+            })
+        }
+    </script>
 {% endblock content %}
+
+

@@ -64,6 +64,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "accounts.context_processors.get_restaurant",
                 "accounts.context_processors.get_google_api_key",
+                "accounts.context_processors.get_paypal_client_id",
                 "cart.context_processors.get_cart_counter",
                 "cart.context_processors.get_cart_amounts",
             ],
@@ -166,3 +167,9 @@ os.environ["PROJ_LIB"] = (
     + os.environ["PATH"]
 )
 GDAL_LIBRARY_PATH = os.path.join(BASE_DIR, "env\Lib\site-packages\osgeo\gdal304.dll")
+
+
+# PayPal
+PAYPAL_CLIENT_ID = env.str("PAYPAL_CLIENT_ID")
+# To unblock popups
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"

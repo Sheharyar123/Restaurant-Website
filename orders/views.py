@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 import simplejson as json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
@@ -5,7 +6,7 @@ from django.views.generic import View
 from cart.context_processors import get_cart_amounts
 from cart.models import Cart
 from core.forms import CheckoutForm
-from .models import Order
+from .models import Order, Payment
 from .utils import generate_order_number
 
 
@@ -17,6 +18,7 @@ class PlaceOrderView(LoginRequiredMixin, View):
         return render(request, "orders/place_order.html")
 
     def post(self, request, *args, **kwargs):
+        cart_items = Cart.objects.filter(user=request.user)
         subtotal = get_cart_amounts(request).get("subtotal")
         total_tax = get_cart_amounts(request).get("tax")
         grand_total = get_cart_amounts(request).get("grand_total")
@@ -41,6 +43,31 @@ class PlaceOrderView(LoginRequiredMixin, View):
             order.save()
             order.order_number = generate_order_number(order.id)
             order.save()
-            return redirect("orders:place_order")
+            context = {"order": order, "cart_items": cart_items}
+            return render(request, "orders/place_order.html", context)
         else:
             pass
+
+
+class ReceivePaymentView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            transaction_id = request.POST.get("transaction_id")
+            status = request.POST.get("status")
+            payment_choice = request.POST.get("payment_choice")
+            order_number = request.POST.get("order_number")
+            amount = get_cart_amounts(request).get("grand_total")
+            order = Order.objects.get(order_number=order_number, user=request.user)
+            payment = Payment.objects.create(
+                user=request.user,
+                transaction_id=transaction_id,
+                status=status,
+                payment_choice=payment_choice,
+                amount=amount,
+            )
+            order.payment = payment
+            order.is_ordered = True
+            order.save()
+            return JsonResponse({"status": "success"})
+        else:
+            return JsonResponse({"status": "failed"})
