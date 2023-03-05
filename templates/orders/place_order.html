@@ -54,7 +54,7 @@
                                                             <td><img src="{{ item.food_item.image.url }}" width="40" alt="Food image" /></td>
                                                             <td><strong>{{ item.food_item.food_title }}</strong></td>
                                                             <td>{{ item.quantity }}</td>
-                                                            <td>{{ item.food_item.price }}</td>
+                                                            <td>${{ item.food_item.price }}</td>
                                                         </tr>
                                                     {% endfor %}
                                                 </tbody>
