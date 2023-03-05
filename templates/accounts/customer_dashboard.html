@@ -20,31 +20,40 @@
                     <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
                         <div class="user-dashboard loader-holder">
                             <div class="user-holder">
-                                
+                                <h5 class="text-uppercase">Overview</h5>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                Total Orders
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title">{{ orders.count }}</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                Logged in as <strong>{{ user.email }}</strong>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <a href="{% url 'core:customer_profile' %}"><h5 class="card-title">Edit Profile</h5></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="row">
                                         <div class="element-title has-border right-filters-row">
-                                            <h5>Recent Orders</h5>
-                                            <div class="right-filters row pull-right">
-                                                <div class="col-lg-6 col-md-6 col-xs-6">
-                                                    <div class="input-field">
-                                                        <select class="chosen-select-no-single">
-                                                            <option selected="selected" value="">Select Orders Status</option>
-                                                            <option value="Processing">Processing</option>
-                                                            <option value="Cancelled">Cancelled</option>
-                                                            <option value="Completed">Completed</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                
-                                            </div>
+                                            <h5 class="text-uppercase">Recent Orders</h5>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="user-orders-list">
-                                            <div class="responsive-table">
+                                            {% comment %} <div class="responsive-table">
                                                 <ul class="table-generic">
                                                     <li class="order-heading-titles">
                                                         <div>Order id</div>
@@ -82,7 +91,31 @@
                                                         <div><span class="order-status" style="background-color: #047a06;">Completed</span></div>
                                                     </li>
                                                 </ul>
-                                            </div>												
+                                            </div> {% endcomment %}
+                                            <table class="table table-hover">
+                                                <thead>
+                                                  <tr>
+                                                    <th scope="col">Order #</th>
+                                                    <th scope="col">Name</th>
+                                                    <th scope="col">Total</th>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Date</th>
+                                                    <th scope="col">Action</th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody>
+                                                  {% for order in orders|slice:":5" %}
+                                                    <tr>
+                                                        <td><strong><a href="#">{{ order.order_number }}</a></strong></td>
+                                                        <td>{{ order.name }}</td>
+                                                        <td>${{ order.total }}</td>
+                                                        <td>{{ order.status }}</td>
+                                                        <td>{{ order.created_on }}</td>
+                                                        <td scope="col"><a href="#" class="btn btn-danger">Details</a></td>
+                                                    </tr>
+                                                  {% endfor %}                                                    
+                                                </tbody>
+                                              </table>
                                         </div>
                                     </div>
                                 </div>

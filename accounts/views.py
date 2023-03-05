@@ -7,6 +7,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.views.generic import View
 
 from core.forms import RestaurantForm
+from orders.models import Order
 from .forms import UserRegisterationForm
 from .models import UserProfile
 from .utils import send_verification_email, send_reset_password_email
@@ -217,7 +218,8 @@ class DashboardView(LoginRequiredMixin, View):
         user = request.user
         if user.role == User.CUSTOMER:
             user_profile = get_object_or_404(UserProfile, user=request.user)
-            context = {"user_profile": user_profile}
+            orders = Order.objects.filter(user=request.user, is_ordered=True)
+            context = {"user_profile": user_profile, "orders": orders}
             return render(request, "accounts/customer_dashboard.html", context)
         elif user.role == User.RESTAURANT:
             # restaurant = Restaurant.objects.get(user=request.user)
