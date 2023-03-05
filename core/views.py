@@ -288,6 +288,7 @@ class CheckoutView(LoginRequiredMixin, View):
         default_values = {
             "first_name": request.user.first_name,
             "last_name": request.user.last_name,
+            "email": request.user.email,
             "address": user_profile.address,
             "phone_no": request.user.phone_no,
             "city": user_profile.city,

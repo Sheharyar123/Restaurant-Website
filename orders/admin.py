@@ -7,6 +7,20 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter = ["payment_choice", "status"]
 
 
+class OrderedFoodInline(admin.TabularInline):
+    model = OrderedFood
+    readonly_fields = [
+        "order",
+        "payment",
+        "user",
+        "food_item",
+        "quantity",
+        "price",
+        "amount",
+    ]
+    extra = 0
+
+
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         "user",
@@ -23,6 +37,7 @@ class OrderAdmin(admin.ModelAdmin):
         "is_ordered",
     ]
     list_filter = ["status", "is_ordered", "city", "state", "country"]
+    inlines = [OrderedFoodInline]
 
 
 class OrderedFoodAdmin(admin.ModelAdmin):
@@ -31,4 +46,4 @@ class OrderedFoodAdmin(admin.ModelAdmin):
 
 admin.site.register(Payment, PaymentAdmin)
 admin.site.register(Order, OrderAdmin)
-admin.site.register(OrderedFood, OrderedFoodAdmin)
+# admin.site.register(OrderedFood, OrderedFoodAdmin)

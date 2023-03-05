@@ -3,10 +3,11 @@ import simplejson as json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views.generic import View
+from accounts.utils import send_approval_notification
 from cart.context_processors import get_cart_amounts
 from cart.models import Cart
 from core.forms import CheckoutForm
-from .models import Order, Payment
+from .models import Order, Payment, OrderedFood
 from .utils import generate_order_number
 
 
@@ -30,7 +31,7 @@ class PlaceOrderView(LoginRequiredMixin, View):
             order.first_name = form.cleaned_data["first_name"]
             order.last_name = form.cleaned_data["last_name"]
             order.phone_no = form.cleaned_data["phone_no"]
-            order.email = request.user.email
+            order.email = form.cleaned_data["email"]
             order.address = form.cleaned_data["address"]
             order.city = form.cleaned_data["city"]
             order.state = form.cleaned_data["state"]
@@ -68,6 +69,80 @@ class ReceivePaymentView(LoginRequiredMixin, View):
             order.payment = payment
             order.is_ordered = True
             order.save()
-            return JsonResponse({"status": "success"})
+
+            # Move Cart items to Ordered Food model
+            cart_items = Cart.objects.filter(user=request.user)
+            for item in cart_items:
+                ordered_food = OrderedFood()
+                ordered_food.order = order
+                ordered_food.payment = payment
+                ordered_food.user = request.user
+                ordered_food.food_item = item.food_item
+                ordered_food.quantity = item.quantity
+                ordered_food.price = item.food_item.price
+                ordered_food.amount = item.food_item.price * item.quantity
+                ordered_food.save()
+
+            # Send email to user
+            mail_subject = "Thank you for your order"
+            mail_template = "orders/order_confirmation.html"
+            context = {
+                "order": order,
+                "to_email": order.email,
+                "payment": payment,
+            }
+            send_approval_notification(mail_subject, mail_template, context)
+
+            # Send email to vendors
+            mail_subject = "You received a new order"
+            mail_template = "orders/order_received.html"
+            to_emails = []
+            for item in cart_items:
+                email = item.food_item.restaurant.user.email
+                if email not in to_emails:
+                    to_emails.append(email)
+            context = {
+                "to_email": to_emails,
+                "order": order,
+            }
+
+            send_approval_notification(mail_subject, mail_template, context)
+
+            # Clear cart
+            cart_items.delete()
+
+            return JsonResponse(
+                {
+                    "status": "success",
+                    "order_number": order.order_number,
+                    "transaction_id": payment.transaction_id,
+                }
+            )
         else:
             return JsonResponse({"status": "failed"})
+
+
+class OrderCompleteView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        order_number = request.GET.get("order_number")
+        transaction_id = request.GET.get("trans_id")
+        try:
+            order = Order.objects.get(
+                order_number=order_number,
+                payment__transaction_id=transaction_id,
+                is_ordered=True,
+            )
+            ordered_food = OrderedFood.objects.filter(order=order, user=request.user)
+            subtotal = 0
+            for item in ordered_food:
+                subtotal += item.amount
+            tax_data = json.loads(order.tax_data)
+            context = {
+                "order": order,
+                "ordered_food": ordered_food,
+                "subtotal": subtotal,
+                "tax_data": tax_data,
+            }
+        except:
+            return redirect("core:restaurant_list")
+        return render(request, "orders/order_complete.html", context)
