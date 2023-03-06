@@ -183,3 +183,19 @@ class OrderDetailView(LoginRequiredMixin, View):
             return render(request, "orders/order_detail.html", context)
         except:
             return redirect("accounts:dashboard")
+
+
+class RestaurantOrderDetailView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            order = Order.objects.get(
+                order_number=kwargs.get("order_number"), is_ordered=True
+            )
+            ordered_food = OrderedFood.objects.filter(order=order)
+            context = {
+                "order": order,
+                "ordered_food": ordered_food,
+            }
+            return render(request, "orders/restaurant_order_detail.html", context)
+        except:
+            return redirect("accounts:dashboard")

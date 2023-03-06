@@ -5,6 +5,7 @@ from .views import (
     OrderCompleteView,
     CustomerOrdersView,
     OrderDetailView,
+    RestaurantOrderDetailView,
 )
 
 app_name = "orders"
@@ -15,4 +16,9 @@ urlpatterns = [
     path("order_complete/", OrderCompleteView.as_view(), name="order_complete"),
     path("my_orders/", CustomerOrdersView.as_view(), name="my_orders"),
     path("order/<str:order_number>/", OrderDetailView.as_view(), name="order_detail"),
+    path(
+        "restaurant_order/<str:order_number>/",
+        RestaurantOrderDetailView.as_view(),
+        name="restaurant_order_detail",
+    ),
 ]

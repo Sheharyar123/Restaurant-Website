@@ -7,6 +7,7 @@ from django.utils.http import urlsafe_base64_decode
 from django.views.generic import View
 
 from core.forms import RestaurantForm
+from core.models import Restaurant
 from orders.models import Order
 from .forms import UserRegisterationForm
 from .models import UserProfile
@@ -217,12 +218,15 @@ class DashboardView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         user = request.user
         if user.role == User.CUSTOMER:
-            orders = Order.objects.filter(user=request.user, is_ordered=True)
+            orders = Order.objects.filter(user=user, is_ordered=True)
             context = {"orders": orders}
             return render(request, "accounts/customer_dashboard.html", context)
         elif user.role == User.RESTAURANT:
-            # restaurant = Restaurant.objects.get(user=request.user)
-            # context = {"restaurant": restaurant}
-            return render(request, "accounts/restaurant_dashboard.html")
+            restaurant = Restaurant.objects.get(user=user)
+            orders = Order.objects.filter(
+                restaurants__in=[restaurant.id], is_ordered=True
+            )
+            context = {"orders": orders}
+            return render(request, "accounts/restaurant_dashboard.html", context)
         elif user.role is None and user.is_superuser:
             return redirect("/admin/")
