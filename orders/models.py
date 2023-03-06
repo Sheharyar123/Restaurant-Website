@@ -1,5 +1,6 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
+from django.urls import reverse
 from menu.models import FoodItem
 
 User = get_user_model()
@@ -63,6 +64,11 @@ class Order(models.Model):
 
     def __str__(self):
         return self.order_number
+
+    def get_absolute_url(self):
+        return reverse(
+            "orders:order_detail", kwargs={"order_number": self.order_number}
+        )
 
     @property
     def name(self):

@@ -63,6 +63,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "accounts.context_processors.get_restaurant",
+                "accounts.context_processors.get_user_profile",
                 "accounts.context_processors.get_google_api_key",
                 "accounts.context_processors.get_paypal_client_id",
                 "cart.context_processors.get_cart_counter",

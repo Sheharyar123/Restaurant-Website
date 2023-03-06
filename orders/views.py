@@ -1,8 +1,9 @@
 from django.http import JsonResponse
 import simplejson as json
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import View
+from accounts.models import UserProfile
 from accounts.utils import send_approval_notification
 from cart.context_processors import get_cart_amounts
 from cart.models import Cart
@@ -146,3 +147,32 @@ class OrderCompleteView(LoginRequiredMixin, View):
         except:
             return redirect("core:restaurant_list")
         return render(request, "orders/order_complete.html", context)
+
+
+class CustomerOrdersView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        orders = Order.objects.filter(user=request.user, is_ordered=True)
+        context = {"orders": orders}
+        return render(request, "orders/customer_orders.html", context)
+
+
+class OrderDetailView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            order = Order.objects.get(
+                order_number=kwargs.get("order_number"), is_ordered=True
+            )
+            ordered_food = OrderedFood.objects.filter(order=order)
+            subtotal = 0
+            for item in ordered_food:
+                subtotal += item.quantity * item.price
+            tax_data = json.loads(order.tax_data)
+            context = {
+                "order": order,
+                "ordered_food": ordered_food,
+                "subtotal": subtotal,
+                "tax_data": tax_data,
+            }
+            return render(request, "orders/order_detail.html", context)
+        except:
+            return redirect("accounts:dashboard")

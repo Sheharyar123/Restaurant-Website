@@ -217,9 +217,8 @@ class DashboardView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         user = request.user
         if user.role == User.CUSTOMER:
-            user_profile = get_object_or_404(UserProfile, user=request.user)
             orders = Order.objects.filter(user=request.user, is_ordered=True)
-            context = {"user_profile": user_profile, "orders": orders}
+            context = {"orders": orders}
             return render(request, "accounts/customer_dashboard.html", context)
         elif user.role == User.RESTAURANT:
             # restaurant = Restaurant.objects.get(user=request.user)
