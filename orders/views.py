@@ -8,6 +8,7 @@ from accounts.utils import send_approval_notification
 from cart.context_processors import get_cart_amounts
 from cart.models import Cart
 from core.forms import CheckoutForm
+from core.models import Restaurant
 from .models import Order, Payment, OrderedFood
 from .utils import generate_order_number
 
@@ -21,7 +22,12 @@ class PlaceOrderView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         cart_items = Cart.objects.filter(user=request.user)
-        subtotal = get_cart_amounts(request).get("subtotal")
+        restaurant_ids = []
+        for item in cart_items:
+            res_id = item.food_item.restaurant.id
+            if res_id not in restaurant_ids:
+                restaurant_ids.append(res_id)
+
         total_tax = get_cart_amounts(request).get("tax")
         grand_total = get_cart_amounts(request).get("grand_total")
         tax_data = get_cart_amounts(request).get("tax_dict")
@@ -43,6 +49,7 @@ class PlaceOrderView(LoginRequiredMixin, View):
             order.total_tax = total_tax
             order.payment_method = request.POST.get("payment_method")
             order.save()
+            order.restaurants.add(*restaurant_ids)
             order.order_number = generate_order_number(order.id)
             order.save()
             context = {"order": order, "cart_items": cart_items}

@@ -26,11 +26,11 @@ class OrderAdmin(admin.ModelAdmin):
         "user",
         "payment_method",
         "first_name",
-        "last_name",
         "city",
         "country",
         "total",
         "status",
+        "order_restaurants",
         "is_ordered",
     ]
     list_editable = [

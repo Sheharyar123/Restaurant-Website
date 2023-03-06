@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
+from core.models import Restaurant
 from menu.models import FoodItem
 
 User = get_user_model()
@@ -38,6 +39,7 @@ class Order(models.Model):
     payment = models.ForeignKey(
         Payment, on_delete=models.SET_NULL, null=True, related_name="orders"
     )
+    restaurants = models.ManyToManyField(Restaurant, blank=True)
     order_number = models.CharField(max_length=50, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -69,6 +71,10 @@ class Order(models.Model):
         return reverse(
             "orders:order_detail", kwargs={"order_number": self.order_number}
         )
+
+    @property
+    def order_restaurants(self):
+        return ", ".join([str(r) for r in self.restaurants.all()])
 
     @property
     def name(self):
