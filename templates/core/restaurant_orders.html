@@ -7,14 +7,14 @@
 
     <!-- Main Section Start -->
     <div class="main-section">
-        {% include '_user_cover_section.html' %}
+        {% include '_cover_section.html' %}
         
         <div class="page-section account-header buyer-logged-in">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
                         <div class="user-account-nav user-account-sidebar">
-                            {% include '_userSidebar.html' %}
+                            {% include '_restaurantSidebar.html' %}
                         </div>
                     </div>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
@@ -44,12 +44,12 @@
                                                 <tbody>
                                                   {% for order in orders %}
                                                     <tr>
-                                                        <td><strong><a href="{{ order.get_absolute_url }}">{{ order.order_number }}</a></strong></td>
+                                                        <td><strong><a href="{% url 'orders:restaurant_order_detail' order.order_number %}">{{ order.order_number }}</a></strong></td>
                                                         <td>{{ order.name }}</td>
-                                                        <td>${{ order.total }}</td>
+                                                        <td>${{ order.get_total_by_restaurant.grand_total }}</td>
                                                         <td>{{ order.status }}</td>
                                                         <td>{{ order.created_on }}</td>
-                                                        <td><a href="{{ order.get_absolute_url }}" class="btn btn-danger">Details</a></td>
+                                                        <td><a href="{% url 'orders:restaurant_order_detail' order.order_number %}" class="btn btn-danger">Details</a></td>
                                                     </tr>
                                                   {% endfor %}                                                    
                                                 </tbody>

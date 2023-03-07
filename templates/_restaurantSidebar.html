@@ -21,8 +21,8 @@
                     <i class="icon-menu5"></i>Opening Hours
                 </a>
             </li>
-            <li>
-                <a href="restaurant-orders.html">
+            <li class={% if 'my_orders' in request.path %}"active"{% endif %}>
+                <a href="{% url 'core:restaurant_orders' %}">
                     <i class="icon-add_shopping_cart"></i>Orders
                 </a>
             </li>

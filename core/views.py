@@ -15,6 +15,7 @@ from accounts.models import UserProfile
 from cart.models import Cart
 from menu.models import Category, FoodItem
 from menu.utils import get_restaurant
+from orders.models import Order
 from .forms import RestaurantForm, OpeningHourForm, UserInfoForm, CheckoutForm
 from .models import Restaurant, OpeningHour
 
@@ -299,3 +300,11 @@ class CheckoutView(LoginRequiredMixin, View):
         form = CheckoutForm(initial=default_values)
         context = {"form": form, "cart_items": cart_items}
         return render(request, "core/checkout.html", context)
+
+
+class RestaurantOrdersView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        restaurant = Restaurant.objects.get(user=request.user)
+        orders = Order.objects.filter(restaurants__in=[restaurant.id], is_ordered=True)
+        context = {"orders": orders}
+        return render(request, "core/restaurant_orders.html", context)

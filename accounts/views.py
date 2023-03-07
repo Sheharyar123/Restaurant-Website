@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib import messages, auth
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -226,7 +227,22 @@ class DashboardView(LoginRequiredMixin, View):
             orders = Order.objects.filter(
                 restaurants__in=[restaurant.id], is_ordered=True
             )
-            context = {"orders": orders}
+            total_revenue = 0
+            for order in orders:
+                total_revenue += order.get_total_by_restaurant["grand_total"]
+
+            this_month_revenue = 0
+            current_month = datetime.now().month
+            current_month_orders = orders.filter(
+                restaurants__in=[restaurant.id], created_on__month=current_month
+            )
+            for order in current_month_orders:
+                this_month_revenue += order.get_total_by_restaurant["grand_total"]
+            context = {
+                "orders": orders,
+                "total_revenue": total_revenue,
+                "this_month_revenue": this_month_revenue,
+            }
             return render(request, "accounts/restaurant_dashboard.html", context)
         elif user.role is None and user.is_superuser:
             return redirect("/admin/")

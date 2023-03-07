@@ -3,8 +3,11 @@ from django.db import models
 from django.urls import reverse
 from core.models import Restaurant
 from menu.models import FoodItem
+import simplejson as json
 
 User = get_user_model()
+
+request_object = ""
 
 
 class Payment(models.Model):
@@ -74,6 +77,30 @@ class Order(models.Model):
         return reverse(
             "orders:order_detail", kwargs={"order_number": self.order_number}
         )
+
+    @property
+    def get_total_by_restaurant(self):
+        restaurant = Restaurant.objects.get(user=request_object.user)
+        subtotal = 0
+        tax = 0
+        tax_data = {}
+        if self.total_data:
+            order_data = json.loads(self.total_data).get(str(restaurant.id))
+            for key, val in order_data.items():
+                subtotal += float(key)
+                val = val.replace("'", '"')
+                tax_data.update(json.loads(val))
+                # {'GST': {'17.00': '6.80'}, 'VAT': {'5.00': '2.00'}}
+                for t_type in tax_data:
+                    for t_per in tax_data[t_type]:
+                        tax += float(tax_data[t_type][t_per])
+        grand_total = float(subtotal) + float(tax)
+        context = {
+            "subtotal": subtotal,
+            "grand_total": grand_total,
+            "tax_data": tax_data,
+        }
+        return context
 
     @property
     def order_restaurants(self):

@@ -6,9 +6,10 @@ from django.views.generic import View
 from accounts.models import UserProfile
 from accounts.utils import send_approval_notification
 from cart.context_processors import get_cart_amounts
-from cart.models import Cart
+from cart.models import Cart, Tax
 from core.forms import CheckoutForm
 from core.models import Restaurant
+from menu.models import FoodItem
 from .models import Order, Payment, OrderedFood
 from .utils import generate_order_number
 
@@ -28,6 +29,30 @@ class PlaceOrderView(LoginRequiredMixin, View):
             if res_id not in restaurant_ids:
                 restaurant_ids.append(res_id)
 
+        taxes = Tax.objects.filter(is_active=True)
+        subtotal_dict = {}
+        total_data = {}
+        subtotal = 0
+        for item in cart_items:
+            food_item = FoodItem.objects.get(
+                id=item.food_item.id, restaurant__id__in=restaurant_ids
+            )
+            if food_item.id in subtotal_dict:
+                subtotal = subtotal_dict[food_item.id]
+                subtotal += food_item.price * item.quantity
+            else:
+                subtotal = food_item.price * item.quantity
+
+            subtotal_dict[food_item.id] = subtotal
+            tax_dict = {}
+            for tax in taxes:
+                tax_type = tax.tax_type
+                tax_percentage = tax.tax_percentage
+                tax_amount = round((tax_percentage * subtotal) / 100, 2)
+                tax_dict.update({tax_type: {str(tax_percentage): str(tax_amount)}})
+            total_data.update({food_item.restaurant.id: {str(subtotal): str(tax_dict)}})
+            print(total_data)
+
         total_tax = get_cart_amounts(request).get("tax")
         grand_total = get_cart_amounts(request).get("grand_total")
         tax_data = get_cart_amounts(request).get("tax_dict")
@@ -46,6 +71,7 @@ class PlaceOrderView(LoginRequiredMixin, View):
             order.pin_code = form.cleaned_data["pin_code"]
             order.total = grand_total
             order.tax_data = json.dumps(tax_data)
+            order.total_data = json.dumps(total_data)
             order.total_tax = total_tax
             order.payment_method = request.POST.get("payment_method")
             order.save()
@@ -188,6 +214,7 @@ class OrderDetailView(LoginRequiredMixin, View):
 class RestaurantOrderDetailView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         try:
+            restaurant = Restaurant.objects.get(user=request.user)
             order = Order.objects.get(
                 order_number=kwargs.get("order_number"), is_ordered=True
             )
@@ -195,6 +222,10 @@ class RestaurantOrderDetailView(LoginRequiredMixin, View):
             context = {
                 "order": order,
                 "ordered_food": ordered_food,
+                "restaurant": restaurant,
+                "subtotal": order.get_total_by_restaurant["subtotal"],
+                "tax_data": order.get_total_by_restaurant["tax_data"],
+                "total": order.get_total_by_restaurant["grand_total"],
             }
             return render(request, "orders/restaurant_order_detail.html", context)
         except:
