@@ -1,9 +1,9 @@
 from django.http import JsonResponse
 import simplejson as json
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.sites.shortcuts import get_current_site
+from django.shortcuts import render, redirect
 from django.views.generic import View
-from accounts.models import UserProfile
 from accounts.utils import send_approval_notification
 from cart.context_processors import get_cart_amounts
 from cart.models import Cart, Tax
@@ -11,7 +11,7 @@ from core.forms import CheckoutForm
 from core.models import Restaurant
 from menu.models import FoodItem
 from .models import Order, Payment, OrderedFood
-from .utils import generate_order_number
+from .utils import generate_order_number, order_total_for_each_restaurant
 
 
 class PlaceOrderView(LoginRequiredMixin, View):
@@ -120,10 +120,19 @@ class ReceivePaymentView(LoginRequiredMixin, View):
             # Send email to user
             mail_subject = "Thank you for your order"
             mail_template = "orders/order_confirmation.html"
+            ordered_food = OrderedFood.objects.filter(order=order)
+            customer_subtotal = 0
+            for item in ordered_food:
+                customer_subtotal += item.quantity * item.price
+            tax_data = json.loads(order.tax_data)
             context = {
                 "order": order,
                 "to_email": order.email,
                 "payment": payment,
+                "ordered_food": ordered_food,
+                "domain": get_current_site(request),
+                "customer_subtotal": customer_subtotal,
+                "tax_data": tax_data,
             }
             send_approval_notification(mail_subject, mail_template, context)
 
@@ -135,12 +144,27 @@ class ReceivePaymentView(LoginRequiredMixin, View):
                 email = item.food_item.restaurant.user.email
                 if email not in to_emails:
                     to_emails.append(email)
-            context = {
-                "to_email": to_emails,
-                "order": order,
-            }
+                    restaurant_ordered_food = OrderedFood.objects.filter(
+                        order=order, food_item__restaurant__user__email=email
+                    )
+                    context = {
+                        "to_email": to_emails,
+                        "order": order,
+                        "payment": payment,
+                        "restaurant_ordered_food": restaurant_ordered_food,
+                        "domain": get_current_site(request),
+                        "restaurant_subtotal": order_total_for_each_restaurant(
+                            order, item.food_item.restaurant.id
+                        )["subtotal"],
+                        "tax_data": order_total_for_each_restaurant(
+                            order, item.food_item.restaurant.id
+                        )["tax_data"],
+                        "restaurant_total": order_total_for_each_restaurant(
+                            order, item.food_item.restaurant.id
+                        )["grand_total"],
+                    }
 
-            send_approval_notification(mail_subject, mail_template, context)
+                    send_approval_notification(mail_subject, mail_template, context)
 
             # Clear cart
             cart_items.delete()

@@ -21,6 +21,7 @@ def send_verification_email(request, user, mail_subject, email_template):
     )
     to_email = user.email
     mail = EmailMessage(mail_subject, message, from_email, to=[to_email])
+    mail.content_subtype = "html"
     mail.send()
 
 
@@ -38,6 +39,7 @@ def send_reset_password_email(request, user, mail_subject, email_template):
     )
     to_email = user.email
     mail = EmailMessage(mail_subject, message, from_email, to=[to_email])
+    mail.content_subtype = "html"
     mail.send()
 
 
@@ -50,4 +52,5 @@ def send_approval_notification(mail_subject, mail_template, context):
     else:
         to_email = context["to_email"]
     mail = EmailMessage(mail_subject, message, from_email, to=to_email)
+    mail.content_subtype = "html"
     mail.send()
