@@ -131,7 +131,7 @@
                                                         </span>
                                                     </li>
                                                     <!-- Payment Method -->
-                                                    <h5 class="mt-2">SELECT PAYMENT METHOD</h5>
+                                                    {% comment %} <h5 class="mt-2">SELECT PAYMENT METHOD</h5>
                                                     <div class="payment">
                                                         <label>
                                                             <input type="radio" name="payment_method" value="Paypal" />
@@ -143,8 +143,9 @@
                                                             <img src="{% static 'images/stripe_logo.png' %}" alt="Stripe Logo" width="100" />
                                                         </label>
                                                     </div> 
-                                                    <span class="text-danger" id="payment_method_error"></span>
-                                                    <button type="submit" onclick="return payMethodConfirm()" class="btn btn-danger p-2 mt-3 mb-3 w-100">PLACE ORDER</button>
+                                                    <span class="text-danger" id="payment_method_error"></span> {% endcomment %}
+                                                    {% comment %} <button type="submit" onclick="return payMethodConfirm()" class="btn btn-danger p-2 mt-3 mb-3 w-100">PLACE ORDER</button> {% endcomment %}
+                                                    <button type="submit" class="btn btn-danger p-2 mt-3 mb-3 w-100">PLACE ORDER</button>
                                                 </ul>
                                             </form>
                                             </div>
@@ -160,7 +161,7 @@
         </div>
     </div>
 
-<script>
+{% comment %} <script>
     function payMethodConfirm() {
         const payMethod = $("input[name=payment_method]:checked").val();
         if (!payMethod) {
@@ -171,5 +172,5 @@
     $("input[name=payment_method]").on("change", function(){
         $("#payment_method_error").html("");
     });
-</script>
+</script> {% endcomment %}
 {% endblock content %}

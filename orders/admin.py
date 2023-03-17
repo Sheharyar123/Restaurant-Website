@@ -3,8 +3,10 @@ from .models import Payment, Order, OrderedFood
 
 
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ["transaction_id", "user", "amount", "payment_choice", "status"]
-    list_filter = ["payment_choice", "status"]
+    list_display = ["transaction_id", "user", "amount", "status"]
+    list_filter = [
+        "status",
+    ]
 
 
 class OrderedFoodInline(admin.TabularInline):
@@ -24,7 +26,6 @@ class OrderedFoodInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = [
         "user",
-        "payment_method",
         "first_name",
         "city",
         "country",

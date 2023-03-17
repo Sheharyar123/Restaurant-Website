@@ -24,7 +24,7 @@
                                                 <div>{{ order.state }}, {{ order.country }}</div>
                                                 <div><strong>Phone: </strong>{{ order.phone_no }}</div>
                                                 <div><strong>Email: </strong>{{ order.email }}</div>
-                                                <div><strong>Payment: </strong>{{ order.payment_method }}</div>
+                                                <div><strong>Payment: </strong>PayPal</div>
                                                 <br>
                                                 <div><a href="{% url 'core:checkout' %}" class="btn btn-outline-danger">Edit</a></div>
                                                 <br>
@@ -78,7 +78,7 @@
                                                         </li>
                                                     {% endfor %}
                                                 {% endfor %}
-                                                <li style="list-style-type: none; font-weight: 600;" class="mb-0">
+                                                <li style="list-style-type: none; font-weight: 600; margin-bottom: 20px;">
                                                     Total
                                                     <span class="price float-right">
                                                         <span class="currency">$</span>

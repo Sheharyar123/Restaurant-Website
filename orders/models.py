@@ -11,15 +11,15 @@ request_object = ""
 
 
 class Payment(models.Model):
-    PAYMENT_CHOICES = (
-        ("Paypal", "Paypal"),
-        ("Stripe", "Stripe"),
-    )
+    # PAYMENT_CHOICES = (
+    #     ("Paypal", "Paypal"),
+    #     ("Stripe", "Stripe"),
+    # )
     user = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, related_name="payments"
     )
     transaction_id = models.CharField(max_length=100, unique=True)
-    payment_choice = models.CharField(max_length=20, choices=PAYMENT_CHOICES)
+    # payment_choice = models.CharField(max_length=20, choices=PAYMENT_CHOICES)
     amount = models.DecimalField(decimal_places=2, max_digits=10)
     status = models.CharField(max_length=100)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -61,7 +61,7 @@ class Order(models.Model):
     )
     total_data = models.JSONField(blank=True, null=True)
     total_tax = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_method = models.CharField(max_length=20)
+    # payment_method = models.CharField(max_length=20)
     status = models.CharField(choices=STATUS, max_length=20, default="New")
     is_ordered = models.BooleanField(default=False)
     created_on = models.DateTimeField(auto_now_add=True)

@@ -51,7 +51,7 @@ class PlaceOrderView(LoginRequiredMixin, View):
                 tax_amount = round((tax_percentage * subtotal) / 100, 2)
                 tax_dict.update({tax_type: {str(tax_percentage): str(tax_amount)}})
             total_data.update({food_item.restaurant.id: {str(subtotal): str(tax_dict)}})
-            print(total_data)
+            # print(total_data)
 
         total_tax = get_cart_amounts(request).get("tax")
         grand_total = get_cart_amounts(request).get("grand_total")
@@ -73,7 +73,7 @@ class PlaceOrderView(LoginRequiredMixin, View):
             order.tax_data = json.dumps(tax_data)
             order.total_data = json.dumps(total_data)
             order.total_tax = total_tax
-            order.payment_method = request.POST.get("payment_method")
+            # order.payment_method = request.POST.get("payment_method")
             order.save()
             order.restaurants.add(*restaurant_ids)
             order.order_number = generate_order_number(order.id)
@@ -89,7 +89,7 @@ class ReceivePaymentView(LoginRequiredMixin, View):
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
             transaction_id = request.POST.get("transaction_id")
             status = request.POST.get("status")
-            payment_choice = request.POST.get("payment_choice")
+            # payment_choice = request.POST.get("payment_choice")
             order_number = request.POST.get("order_number")
             amount = get_cart_amounts(request).get("grand_total")
             order = Order.objects.get(order_number=order_number, user=request.user)
@@ -97,7 +97,7 @@ class ReceivePaymentView(LoginRequiredMixin, View):
                 user=request.user,
                 transaction_id=transaction_id,
                 status=status,
-                payment_choice=payment_choice,
+                # payment_choice=payment_choice,
                 amount=amount,
             )
             order.payment = payment
