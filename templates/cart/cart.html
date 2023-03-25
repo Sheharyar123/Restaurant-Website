@@ -43,7 +43,7 @@
                                                                 <a href="#" class="delete_cart_item" data-id="{{ cart_item.id}}" data-url="{% url 'cart:delete_cart_item' cart_item.id %}"><i class="icon-delete text-color"></i></a>
                                                             </div>
                                                         </li>
-                                                        <span id="qty-{{cart_item.food_item.id}}" class="item_qty d-none" data-qty="{{ cart_item.quantity }}">{{ cart_item.quantity }}</span>
+                                                        <span id="qty-{{ cart_item.food_item.id}}" class="item_qty d-none" data-qty="{{ cart_item.quantity }}">{{ cart_item.quantity }}</span>
                                                     {% endfor %}
                                                 {% else %}
                                                     <h2 class="text-center p-5">Cart is empty</h2>

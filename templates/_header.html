@@ -100,7 +100,8 @@
     let lat = position.coords.latitude;
     let lng = position.coords.longitude;
     
-    const GOOGLE_API_KEY = "{{ GOOGLE_API_KEY }}";
+    // const GOOGLE_API_KEY = "{{ GOOGLE_API_KEY }}";
+    const GOOGLE_API_KEY = "AIzaSyDEplhqhD_R37HkqCHR-VI-U-ozw4yNLeM";
     const url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"+&key="+GOOGLE_API_KEY;
 
     $.ajax({

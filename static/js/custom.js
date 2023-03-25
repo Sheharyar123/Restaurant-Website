@@ -95,7 +95,7 @@ $(document).ready(function () {
           $("#qty-" + food_id).html(item_qty);
           applyCartAmounts(
             response.cart_amount["subtotal"],
-            response.cart_amount["tax"],
+            response.cart_amount["tax_dict"],
             response.cart_amount["grand_total"]
           );
         }
@@ -145,7 +145,7 @@ $(document).ready(function () {
             checkEmptyCart();
             applyCartAmounts(
               response.cart_amount["subtotal"],
-              response.cart_amount["tax"],
+              response.cart_amount["tax_dict"],
               response.cart_amount["grand_total"]
             );
           }
@@ -208,15 +208,14 @@ $(document).ready(function () {
     if (window.location.pathname == "/cart/") {
       $("#subtotal").html(subtotal);
       $("#total").html(grand_total);
-
-      for (key1 in tax_dict) {
-        console.log(tax_dict[key1]);
-        for (key2 in tax_dict[key1]) {
+      // console.log(tax_dict);
+      for (const key1 in tax_dict) {
+        // console.log(key1);
+        for (const key2 in tax_dict[key1]) {
           // console.log(tax_dict[key1][key2])
           $("#tax-" + key1).html(tax_dict[key1][key2]);
         }
       }
-      console.log(tax_dict);
     }
   }
 
@@ -229,7 +228,6 @@ $(document).ready(function () {
     let is_closed = document.getElementById("id_is_closed").checked;
     const csrf_token = $("input[name=csrfmiddlewaretoken]").val();
     const url = document.getElementById("opening_hour_url").value;
-    console.log(day, from_hour, to_hour, is_closed, csrf_token);
 
     if (is_closed) {
       is_closed = "True";

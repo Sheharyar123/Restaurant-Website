@@ -50,18 +50,29 @@ class Restaurant(models.Model):
         return self.restaurant_name
 
     def is_open(self):
+        # Check current day's opening hours.
         today_date = date.today()
         today = today_date.isoweekday()
-        current_opening_hours = OpeningHour.objects.filter(restaurant=self, day=today)
-        current_date = datetime.now()
-        current_time = current_date.strftime("%H:%M:%S")
-        is_open = False
-        for hour in current_opening_hours:
-            start = str(datetime.strptime(hour.from_hour, "%I:%M %p").time())
-            end = str(datetime.strptime(hour.to_hour, "%I:%M %p").time())
-            if current_time > start and current_time < end:
-                is_open = True
+        print(today)
 
+        current_opening_hours = OpeningHour.objects.filter(restaurant=self, day=today)
+        print(current_opening_hours)
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+
+        is_open = None
+        for i in current_opening_hours:
+            if not i.is_closed:
+                start = str(datetime.strptime(i.from_hour, "%I:%M %p").time())
+                print(start)
+                end = str(datetime.strptime(i.to_hour, "%I:%M %p").time())
+                print(end)
+                if current_time > start and current_time < end:
+                    is_open = True
+                    print(is_open)
+                    break
+                else:
+                    is_open = False
         return is_open
 
     def get_absolute_url(self):
